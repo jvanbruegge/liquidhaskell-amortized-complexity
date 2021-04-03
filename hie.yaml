@@ -1,0 +1,10 @@
+cradle:
+  stack:
+    - path: "./src/Main.hs"
+      component: "code:exe:code"
+
+    - path: "./src/Stack.hs"
+      component: "code:exe:code"
+
+    - path: "./src/Seq.hs"
+      component: "code:exe:code"
