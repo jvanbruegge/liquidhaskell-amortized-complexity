@@ -47,6 +47,9 @@ executable code
 
   other-modules:       Stack
                      , Seq
+                     , Lemmas
+                     , Proofs.Cons
+                     , Proofs.Tails
 
   ghc-options:         -threaded
                        -rtsopts
