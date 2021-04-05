@@ -8,3 +8,12 @@ cradle:
 
     - path: "./src/Seq.hs"
       component: "code:exe:code"
+
+    - path: "./src/Lemmas.hs"
+      component: "code:exe:code"
+
+    - path: "./src/Proofs/Cons.hs"
+      component: "code:exe:code"
+
+    - path: "./src/Proofs/Tails.hs"
+      component: "code:exe:code"

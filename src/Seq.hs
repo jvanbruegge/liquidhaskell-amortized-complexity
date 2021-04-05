@@ -43,16 +43,9 @@ viewLTree (Deep (Four a b c d) m sf) = ConsLTree a (Deep (Three b c d) m sf)
 {-@ pullL :: t:FingerTree (Node a) -> Digit a -> FingerTree a / [size t, 1] @-}
 {-@ reflect pullL @-}
 pullL :: FingerTree (Node a) -> Digit a -> FingerTree a
-pullL m sf = pullL' (viewLTree m) sf
-
-{- pullL m sf = case viewLTree m of
+pullL m sf = case viewLTree m of
   EmptyLTree -> digitToTree' sf
-  ConsLTree pr m' -> Deep (nodeToDigit pr) m' sf -}
-
-{-@ reflect pullL' @-}
-pullL' :: ViewLTree (Node a) -> Digit a -> FingerTree a
-pullL' EmptyLTree sf = digitToTree' sf
-pullL' (ConsLTree pr m') sf = Deep (nodeToDigit pr) m' sf
+  ConsLTree pr m' -> Deep (nodeToDigit pr) m' sf
 
 {-@ reflect digitToTree' @-}
 digitToTree' :: Digit a -> FingerTree a

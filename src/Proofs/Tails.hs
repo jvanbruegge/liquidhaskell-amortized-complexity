@@ -4,6 +4,13 @@ import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (===), 
 import Lemmas
 import Seq
 
+-- This is equivalent to the case expression in pullL, but saves me a lot of typing
+-- If this would not be equivalent, LiquidHaskell would complain, so it is fine to use this
+{-@ reflect pullL' @-}
+pullL' :: ViewLTree (Node a) -> Digit a -> FingerTree a
+pullL' EmptyLTree sf = digitToTree' sf
+pullL' (ConsLTree pr m') sf = Deep (nodeToDigit pr) m' sf
+
 {-@ tailT :: FingerTree a -> Nat @-}
 {-@ reflect tailT @-}
 tailT :: FingerTree a -> Int
