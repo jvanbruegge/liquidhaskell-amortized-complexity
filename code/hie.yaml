@@ -17,3 +17,6 @@ cradle:
 
     - path: "./src/Proofs/Tails.hs"
       component: "code:exe:code"
+
+    - path: "./src/Proofs/Snoc.hs"
+      component: "code:exe:code"

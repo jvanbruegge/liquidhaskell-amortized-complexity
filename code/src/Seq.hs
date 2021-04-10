@@ -25,7 +25,7 @@ data ViewLTree a = ConsLTree a (FingerTree a) | EmptyLTree
 consTree :: a -> FingerTree a -> FingerTree a
 consTree a EmptyT = Single a
 consTree a (Single b) = Deep (One a) EmptyT (One b)
-consTree a (Deep (Four b c d e) m sf) = Deep (Two a b) (Node3 c d e `consTree` m) sf
+consTree a (Deep (Four b c d e) m sf) = m `seq` Deep (Two a b) (Node3 c d e `consTree` m) sf
 consTree a (Deep (Three b c d) m sf) = Deep (Four a b c d) m sf
 consTree a (Deep (Two b c) m sf) = Deep (Three a b c) m sf
 consTree a (Deep (One b) m sf) = Deep (Two a b) m sf
@@ -58,6 +58,16 @@ digitToTree' (One a) = Single a
 nodeToDigit :: Node a -> Digit a
 nodeToDigit (Node2 a b) = Two a b
 nodeToDigit (Node3 a b c) = Three a b c
+
+{-@ reflect snocTree @-}
+snocTree :: FingerTree a -> a -> FingerTree a
+snocTree EmptyT a = Single a
+snocTree (Single a) b = Deep (One a) EmptyT (One b)
+-- See note on `seq` in `consTree`.
+snocTree (Deep pr m (Four a b c d)) e = m `seq` Deep pr (m `snocTree` Node3 a b c) (Two d e)
+snocTree (Deep pr m (Three a b c)) d = Deep pr m (Four a b c d)
+snocTree (Deep pr m (Two a b)) c = Deep pr m (Three a b c)
+snocTree (Deep pr m (One a)) b = Deep pr m (Two a b)
 
 -------------------------
 -- Complexity analysis --

@@ -50,6 +50,7 @@ executable code
                      , Lemmas
                      , Proofs.Cons
                      , Proofs.Tails
+                     , Proofs.Snoc
 
   ghc-options:         -threaded
                        -rtsopts
