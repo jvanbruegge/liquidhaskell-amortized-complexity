@@ -1,9 +1,9 @@
 module Proofs.Cons where
 
-import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (===), (?))
+import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (=<=), (===), (?))
 import Seq
 
-{-@ consT :: a -> FingerTree a -> Nat @-}
+{-@ consT :: a -> FingerTree a -> { n:Nat | n >= 1 } @-}
 {-@ reflect consT @-}
 consT :: a -> FingerTree a -> Int
 consT _ EmptyT = 1
@@ -56,3 +56,10 @@ amortizedConsP x t@(Deep (Four a b c d) q v) =
     *** QED
   where
     consNode = consTree (Node3 b c d) q
+
+{-@ amortizedCons1P :: x:a -> t:FingerTree a -> { 1 + phi (consTree x t) - phi t <= 3 } @-}
+amortizedCons1P :: a -> FingerTree a -> Proof
+amortizedCons1P x t =
+  1 + phi (consTree x t) - phi t
+    =<= consT x t + phi (consTree x t) - phi t ? amortizedConsP x t
+    *** QED

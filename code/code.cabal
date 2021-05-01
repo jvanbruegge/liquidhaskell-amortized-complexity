@@ -53,6 +53,8 @@ executable code
                      , Proofs.Cons
                      , Proofs.Tails
                      , Proofs.Snoc
+                     , Proofs.Concat
+                     , Proofs.ConcatTime
 
   ghc-options:         -threaded
                        -rtsopts

@@ -20,3 +20,6 @@ cradle:
 
     - path: "./src/Proofs/Snoc.hs"
       component: "code:exe:code"
+
+    - path: "./src/Proofs/Concat.hs"
+      component: "code:exe:code"
