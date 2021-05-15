@@ -5,7 +5,7 @@
 %% values in them; it is your responsibility as an author to replace
 %% the commands and values with those provided to you when you
 %% complete the rights form.
-\setcopyright{acmcopyright}
+\setcopyright{acmlicensed}
 \copyrightyear{2021}
 \acmYear{2021}
 \acmDOI{tbd}
@@ -32,7 +32,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Complexity theory for all! - Using LiquidHaskell to prove complexity of data structures (Functional Pearl)}
+\title{Liquid Amortization - Proving amortized complexity with LiquidHaskell (Functional Pearl)}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -64,7 +64,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-
+TODO
 \end{abstract}
 
 %%
@@ -107,23 +107,129 @@
 
 \section{Introduction}
 
+Motivation:
+\begin{itemize}
+\item{Formal proofs for properties of data structures are getting more common}
+\item{Most of the time proof is done in other language}
+\item{Needs a translation step, either manual or programmatic}
+\item{Might have errors in translation}
+\item{Might not support all features of implementation language}
+\item{Thus needs encoding}
+\item{Hard to reconnect proofs back to the actual implementation}
+\end{itemize}
 
+Solution:
+\begin{itemize}
+\item{LiquidHaskell \cite{liquidhaskell} is a refinement type \cite{refinement_types} checker for Haskell}
+\item{Can be used as a theorem prover \cite{tpfa}}
+\item{Directly provide proofs in Haskell, skipping the translation step}
+\end{itemize}
+
+Contributions:
+\begin{itemize}
+\item{Explain how amortized complexity works}
+\item{How to prove amortized complexity}
+\item{Show with case studies of core Haskell data structures how to apply this}
+\end{itemize}
 
 \section{Amortized complexity}
 
+\begin{itemize}
+\item{Worst case is often too pessimistic}
+\item{Idea: spread out expensive operations over multiple cheap ones}
+\item{Usually only talks about sequence of operations without sharing}
+\item{Formalization: Physicist's method}
+\end{itemize}
+
 \section{LiquidHaskell for theorem proving}
+
+\begin{itemize}
+\item{Uses refinement types}
+\item{Refinments are solved by external SMT solver (z3)}
+\item{With the refinement one can define proof combinators}
+\item{Use equational reasoning and induction to prove interesing properties}
+\end{itemize}
 
 \section{Case studies}
 
+\begin{itemize}
+\item{encode requirements of potential as type synonym}
+\end{itemize}
+
 \subsection{Stack with Multipop}
+
+\begin{itemize}
+\item{definition of data structure and operations}
+\item{worst case of push and multipop is O(1) and O(n)}
+\item{but every item we pop was pushed at some point}
+\item{define potential as height of stack}
+\item{refine all functions to the logic level \cite{reflection}}
+\item{guess constant factor}
+\item{prove base case and adjust constant}
+\item{use induction for complex case}
+\end{itemize}
 
 \subsection{Finger Tree}
 
+\begin{itemize}
+\item{originally described in \cite{fingertrees}}
+\item{definition of finger tree}
+\item{code is copy pased from the containers package}
+\item{in contrast to \cite{fingertrees_new} four constructors and different append function}
+\item{slightly modified because LiquidHaskell does not work great with type classes}
+\item{mention polymorphic recursion that is not supported in Lean \cite{lean} and Isabelle/HOL \cite{isabelle}}
+\item{potential of a finger tree}
+\end{itemize}
+
+\subsubsection{Cons and Snoc}
+
+\begin{itemize}
+\item{cons and snoc are very similar, see snoc code in appendix}
+\item{definition of the cons function}
+\item{definition of the consT function}
+\item{step by step proof of amortized complexity}
+\end{itemize}
+
+\subsubsection{Append}\label{sec:append}
+
+\begin{itemize}
+\item{same as worst case, but potential may differ}
+\item{definition of append as mutually recursive functions}
+\item{no automatic termination metric, track termination across recursion}
+\item{generates a lot of constraints > 3000, takes long to typecheck}
+\item{defining the timing function would generate over 8000 constraints}
+\item{proving with logarithms is not easy, but potentiation makes it easier}
+\item{sadly not really possible to do as every step takes forever to typecheck}
+\end{itemize}
+
 \section{Limitations of this approach}
 
+\subsection{Definition of the timing function}
 
+\begin{itemize}
+\item{without changing the system under test, we have to manually create a timing function}
+\item{manual approach might lead to errors}
+\item{Idea 1: factor out recursion and use same recursion for implementation and timing}
+\item{Idea 2: use template Haskell to generate timing function}
+\end{itemize}
 
+\subsection{LiquidHaskell for verification}
 
+\begin{itemize}
+\item{support for type classes is not great at the moment}
+\item{as seen in section~\ref{sec:append}, more complicated pattern matches lead to combinatorial explosion}
+\item{might be possible to be smarter when generating constraints}
+\item{no direct support for rationals make non-linear proofs involving division harder}
+\item{several performance related options like --no-termination, --diff, --fast, did not make a difference for type checking}
+\end{itemize}
+
+\section{Conclusion}
+
+\begin{itemize}
+\item{Get more confidence that your implementation matches the theoretical expectations}
+\item{Easy to apply for simple complexities like O(1) or O(n)}
+\item{Harder with O(log n) because the SMT prover/LiquidHaskell is not quite there yet}
+\end{itemize}
 
 %%
 %% The acknowledgments section is defined using the "acks" environment

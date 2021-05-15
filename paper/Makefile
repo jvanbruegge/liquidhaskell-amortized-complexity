@@ -9,6 +9,6 @@ all: *.tex
 watch:
 	make all; \
 	while true; do \
-		inotifywait --event modify main.tex; \
+		inotifywait --event modify *.tex *.bib; \
 		make all; \
 	done
