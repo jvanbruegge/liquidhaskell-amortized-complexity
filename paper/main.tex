@@ -1,4 +1,5 @@
-\documentclass[sigplan,screen]{acmart}
+%\documentclass[sigplan,screen]{acmart}
+\documentclass[sigplan,screen,review,anonymous]{acmart}
 
 \usepackage{xcolor}
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -57,16 +58,16 @@
 %% "authornote" and "authornotemark" commands
 %% used to denote shared contribution to the research.
 \author{Jan van Brügge}
-\email{jan.van-bruegge@tum.de}
-%\orcid{1234-5678-9012}
+\orcid{0000-0003-1560-7326}
 \affiliation{%
-  \institution{Technical University Munich}
+  \institution{Technical University of Munich}
   \streetaddress{Arcisstraße 21}
   \city{Munich}
   \state{Bavaria}
   \country{Germany}
   \postcode{80333}
 }
+\email{jan.van-bruegge@tum.de}
 
 %%
 %% By default, the full list of authors will be used in the page
@@ -80,7 +81,7 @@
 %% The abstract is a short summary of the work to be presented in the
 %% article.
 \begin{abstract}
-Proofs of complexity of production code is usually done in external theorem provers. This makes it necessary to translate the data structures to be proved from the production language into the language of the prover. Such a translation step may introduce errors by a mismatch in features in the two languages. We show how to prove amortized complexity of data structures directly in Haskell using LiquidHaskell~\cite{liquidhaskell}. Besides skipping the translation step, our approach also has a didactic advantage as new learners do not need to learn a new language for their proofs and can focus on the new concepts only. We do not assume prior knowledge of amortized complexity as we explain the concepts and apply them in our first case study, a simple stack with multipop. The usefulness of our approach in a production setting is verified by the second case study, the finger tree which powers \texttt{Data.Seq} from the \textit{containers} package which is widely depended on. Finally we discuss the current limitations of LiquidHaskell in this area and how they might be lifted.
+Proofs of complexity of production code are usually done in external theorem provers. This makes it necessary to translate the data structures to be verified from the production language into the language of the prover. Such a translation step could introduce errors, for example due to a mismatch in features between the two languages. We show how to prove amortized complexity of data structures directly in Haskell using LiquidHaskell~\cite{liquidhaskell}. Besides skipping the translation step, our approach also provides a didactic advantage as learners do not have to learn an additional language for their proofs and can focus on the new concepts only. We do not assume prior knowledge of amortized complexity as we explain the concepts and apply them in our first case study, a simple stack with multipop. The practicality of our approach in a production setting is demonstrated by our second case study: the finger tree. It powers \texttt{Data.Seq} from the \textit{containers} package~\cite{containers} which is widely depended on. Finally we discuss the current limitations of LiquidHaskell in this area and how it might be possible to improve the situation.
 \end{abstract}
 
 %%
@@ -123,35 +124,35 @@ Proofs of complexity of production code is usually done in external theorem prov
 
 \section{Introduction}
 
-Formally proving certain properties of production code is getting more and more common. For either safety critical code that is not allowed to "go wrong" or code that is fundamental and reused very often, bugs can have a widespread impact. Proving that the code behaves according to the specification can give an extra layer of confidence in such cases. Fundamental data structures are one of the most important parts of a language ecosystem and a lot of production code depends on them. In the Haskell ecosystem, this job is done by the \textit{containers} package~\cite{containers} which has over 5300 reverse dependencies. A lot of code is depending on the assumptions that the data structures perform well and adhere to the stated computational complexities from the documentation. Thus, proving those assumptions correct benefits a huge number of people.
+Formally proving certain properties of production code is becoming more and more common. For safety critical code that is not allowed to "go wrong" as well as code that is fundamental and reused very often like core libraries, bugs can have a widespread impact. Proving that the code behaves according to the specification can provide an extra layer of confidence. Fundamental data structures are one of the most important parts of a programming language ecosystem and a lot of production code depends on them. In the Haskell ecosystem, this job is done by the \textit{containers} package which has over 5300 reverse dependencies\footnote{reverse dependecies are other packages that depend on \textit{containers}} on Hackage~\cite{hackage}, the main repository for Haskell packages. A lot of code depends on the assumptions that the data structures are fast and adhere to computational complexities stated in their documentation. Thus, proving those assumptions correct benefits a huge number of people.
 
-Usually these proofs are done in an external theorem prover, requiring an explicit translation step from the production language to the language of the theorem prover. This translation step has a few disadvantages. First, the semantics of the target language may differ from the semantics of the production language. This is especially true for Haskell with its pervasive laziness, compared with most theorem provers that operate with a strict language. Second, such a translation step may introduce subtle differences or bugs, either by accident in the manual case or through a bug in the automated case. Lastly, the target language may not support certain features present in the source language such as polymorphic recursion in data types. In those cases, the data structure needs to be encoded in the target language, again opening the doors for small and subtle errors. Because the code that is actually used to conduct the proofs might me far removed from the source code that is running in production, it is often hard to reconnect the proofs back to the source code.
+Usually these proofs are done in an external theorem prover (e.g. Coq~\cite{complexity_coq} or Isabelle/HOL~\cite{complexity_isabelle}), requiring an explicit translation step from the production language to the language the theorem prover uses. This translation step has a few disadvantages. First, the semantics of the target language could differ from the semantics of the production language. This is especially true for Haskell with its pervasive laziness, compared to most theorem provers that operate on a strict language. Second, such a translation step could introduce subtle differences or bugs, either by accident when doing a manual translation or through a bug when an automated translation tool is used. Lastly, the target language may not support certain features present in the source language (e.g. polymorphic recursion in data types, see section~\ref{sec:fingertree}). In those cases, the missing features have to be emulated in the target language, again opening the door for small and subtle errors. Because the code that is actually used in the formal proofs differs from the source code that is running in production, it is often hard to reconnect the proofs back to the original production code.
 
-A different approach comes in the form of LiquidHaskell~\cite{liquidhaskell}. It is a refinement type~\cite{refinement_types} checker for Haskell that since 2020 is implemented as a type checker plugin for GHC, the main Haskell compiler used in the industry. It allows to specify additional constraints on types like "integers greater than zero" instead of just "integers". These constraints are propagated through the code and checked by an external SMT prover. With a handful of proof combinators defined by LiquidHaskell, it is possible to use Haskell directly as a theorem prover, enabling intuitive equational reasoning within the language~\cite{tpfa}. This avoids any translation step and makes it easy to keep proof and implementation in sync, as any failure to do so will result in an immediate compiler error. Another benefit is that the reader or writer of a proof does not need to learn a new language, the production language is the proof language.
+A different approach comes in the form of LiquidHaskell~\cite{liquidhaskell}. It is a refinement type~\cite{refinement_types} checker plugin\footnote{before 2020, LiquidHaskell was implemented as a standalone executable, it now being a GHC plugin~\cite{lh_plugin} drastically improves usability} for GHC, the main Haskell compiler used in industry. It allows specifing additional constraints on types, e.g. "integers greater than zero" instead of just "integers". These constraints are propagated through the code and checked by an external SMT solver. With a handful of proof combinators defined by LiquidHaskell, it is possible to use Haskell directly as a theorem prover, enabling intuitive equational reasoning within the language~\cite{tpfa}. This avoids any translation steps and makes it easy to keep implementation and its respective proof in sync, as any failure to do so will result in a compiler error. Another benefit is that the reader or author of a proof does not need to learn an additional language, the production language is the proof language.
 
-This paper thus:
+In this paper, we:
 \begin{itemize}
-\item{Assumes no prior knowledge of amortized complexity by recapping the theoretical background}
-\item{Shows the reasoning infrastructure that is needed to prove amortized complexity with LiquidHaskell}
-\item{Applies this technique to the finger tree, the data structure behind \texttt{Data.Seq} from \textit{containers}, as a case study}
-\item{Discusses the usefulness of LiquidHaskell for such proofs compared with other theorem provers}
+\item{Assume no prior knowledge of amortized complexity as we recap the theoretical background (section~\ref{sec:complexity})}
+\item{Show the reasoning infrastructure that is needed to prove amortized complexity using LiquidHaskell (sections~\ref{sec:liquidhaskell} and~\ref{sec:stack})}
+\item{Apply this technique to \textit{finger trees}, the data structure behind \texttt{Data.Seq} from \textit{containers} (see our second case study in section~\ref{sec:fingertree})}
+\item{Discuss the usefulness of LiquidHaskell for such proofs compared with other theorem provers (sections~\ref{sec:limitations} and~\ref{sec:conclusion})}
 \end{itemize}
 
 \section{Amortized complexity}\label{sec:complexity}
 
-It is common to check how many time units an operation on a data structure takes in relation to the number of elements in the data structure. As the performance can vary wildly for the same operation depending on the state of data structure --- a linear search takes $1$ time unit if the searched element is at the front, while it takes $n$ time units if it is the last element --- usually one uses the worst case for an operation as a metric and uses Landau notation to specify it. With our linear search example we would say that it is in \O{n} because it will not perform worse than $n$ time units.
+It is common practise to check how long an operation on a data structure takes in relation to the number of elements in the data structure. As the performance can vary wildly for the same operation depending on the state of data structure, usually the worst case for each operation is used as a metric and specified using \textit{Landau notation} ("big O"). For example, a linear search takes $1$ unit of time if the searched element is at the front, while it takes $n$ units of time if it is the last element. Thus we would say that a linear search is in the complexity class of \O{n} because it will not take longer than $c \cdot n$ units of time for some fixed constant $c$.
 
-But often this worst case is too pessimistic. When an operation changes the data structure, for example by removing elements, consecutive uses of operation may be cheaper. Or to use an expensive operation it might be necessary to have a certain amount of cheap operations. In this case one uses \textit{amortized complexity} which does not only look at a single operation in isolation, but on chains of operations. In particular, it assumes that that the intermediate data structures are not shared, i.e. they are not persisted. There are multiple methods to proof amortized complexity.
+But often this worst case is too pessimistic. When an operation changes the data structure, for example by removing elements, consecutive operations might be cheaper. Or to use an expensive operation it might be necessary to have a certain amount of cheap operations. In such cases one uses \textit{amortized complexity}, which does not only look at a single operation in isolation, but at chains of operations.
 
-As a running example we will use a stack with \textit{push} and \textit{multipop} operations. The former allocates a new element and a references to the rest of the stack and thus taking a constant amount of time. The latter removes the first $k$ elements from the stack. In the worst case, we remove all the elements, making \texttt{multipop} \O{n}. One can already see that this is too pessimistic, as after removing all elements from the stack, the next \texttt{multipop} will do nothing. In fact, every element we remove needs to be added to the stack at some point, so we can spread out the cost of \texttt{multipop} over many pushes. There are multiple techniques to prove amortized complexity, we present the two most popular ones.
+As a running example we will use a stack with \textit{push} and \textit{multipop} operations. The former allocates a new element and a reference to the rest of the stack and thus takes a constant amount of time. The latter removes the first $k$ elements from the stack. In the worst case, it removes all the elements, making \texttt{multipop} \O{n}. One can already see that this is too pessimistic, because after removing all elements from the stack, the next \texttt{multipop} will do nothing. In fact, to be able to remove an element, it has had to be pushed to the stack at some point, so we can spread out the cost of \texttt{multipop} over those pushes. There are multiple techniques to prove amortized complexity, we present the two most popular ones.
 
 \subsection{Banker's method}\label{sec:banker}
 
-The banker's method works by having an bank account that can store time units. Operations have to pay their actual cost and may additionally pay extra into the account. Expensive operations can then use the stored time units in the bank to pay for themselves. In our example a \texttt{push} has to pay one actual time unit and it will also pay one extra time unit into the bank account. This means that the bank account always contains as many time units as there are elements on the stack. That way, any call to \texttt{multipop} can use the bank account to pay for itself and the account will never become negative.
+The banker's method works by having a bank account that can store time units. Operations have to pay their actual runtime cost and may additionally deposit into or withdraw from the account. The sum of the actual cost and the deposit/withdrawal is the \textit{amortized cost} of the operation. The idea is that cheap operations pay extra time units, making their amortized cost higher than their actual cost. The goal is to keep the difference between the two costs to a constant factor because that means the operation still retains their (cheap) complexity class. Expensive operations on the other hand can use the stored time to pay for their actual cost, hopefully putting them in a cheaper complexity class. In our example a \texttt{push} has to pay one actual time unit and it will also pay one extra time unit into the bank account. The difference between amortized cost and actual cost is constant, so \texttt{push} is still in \O{1}. Because for every element pushed we deposit one extra time unit into the bank, the account always contains as many time units as there are elements on the stack. As \texttt{multipop} can not remove more elements than there are on the stack, withdrawing $k$ time units to pay for the actual cost will never make the account become negative. Because withdrawing from the bank account is enough to pay for the complete actual cost of \texttt{multipop} regardless of the choice of $k$, its \textit{amortized} runtime is in \O{1}.
 
 \subsection{Physicist's method}\label{sec:physicist}
 
-The banker's method is hard to use for a formal proof because the bank account acts as state between the operations. A simpler method is the physicist's method that does not need such an account. The idea is to define a potential $\Phi$ ("phi") for the data structure. This potential should be $0$ for an empty data structure and $\ge 0$ for all other states. Intuitively the potential will declare how much time needs to be saved up to pay for expensive operations. We then define the amortized cost of an operation as $c + \Phi(h') - \Phi(h)$ where $c$ is the actual cost for the operation, $h$ is the data structure before the operation and $h'$ is the data structure afterwards. Looking at a chain of operations $1, 2, ..., n$, the sum of this amortized time is an overestimation of the actual cost by $\Phi(h_n)$ --- because $\Phi(h_0)$ is by definition $0$ --- and thus an upper bound on the actual cost (see equation~\ref{eq:sum}).
+While the banker's method is easy to visualize, it is hard to use in a formal proof because the bank account acts as state between the operations. A simpler method is the physicist's method, which does not need such an account. The idea is to define a potential $\Phi$ ("phi") for the data structure. This potential is defined to be $0$ for an empty data structure and $\ge 0$ for all other states. Intuitively, the potential represents how much time needs to be saved up to pay for expensive operations. We then define the amortized cost of an operation as $c + \Phi(h') - \Phi(h)$ where $c$ is the actual time cost of the operation, $h$ is the data structure before the operation and $h'$ is the data structure afterwards. Looking at a chain of operations $1, 2, ..., n$, the sum of the amortized time is an overestimation of the actual cost by $\Phi(h_n)$ and thus an upper bound on the actual cost (see equation~\ref{eq:sum}, remember that by definition $\Phi(h_0) = 0$).
 
 \begin{gather}
 \nonumber (c_1 + \cancel{\Phi(h_1)} - \Phi(h_0)) + (c_2 + \cancel{\Phi(h_2)} - \cancel{\Phi(h_1)}) \\
@@ -159,17 +160,19 @@ The banker's method is hard to use for a formal proof because the bank account a
   c_1 + c_2 + ... + c_n + \Phi(h_n) - \Phi(h_0) \label{eq:sum}
 \end{gather}
 
-For our stack we can define the potential to be the height of the stack. This fulfils the requirements as the empty stack has a potential of zero and all other states have a potential greater or equal to zero. For the actual proof of this example see the first case study in section~\ref{sec:stack}.
+For our stack we define the potential to be the height of the stack. This fulfils the requirements as the empty stack has a potential of zero and all other states have a potential greater or equal to zero. For the actual proof of this example see the first case study in section~\ref{sec:stack}.
 
-\section{LiquidHaskell for theorem proving}
+\section{LiquidHaskell for theorem proving}\label{sec:liquidhaskell}
 
-As described by Vazou et. al.~\cite{tpfa}, one can use LiquidHaskell to do complex equational reasoning that is machine checked by the compiler. It uses refinement types~\cite{refinement_types} that add additional constraints on top of normal Haskell data types which are checked by an external SMT solver. By default LiquidHaskell uses the z3~\cite{z3} solver, but it also supports cvc4~\cite{cvc4}. For example we can declare the type of integers greater or equal to zero with a type synonym. LiquidHaskell annotions use comments with an @ sign, so that the code still compiles even without LiquidHaskell. It also allows to name arguments, so they can be referred to later in the refinement. At the moment to define functions with refinement, one has to copy the Haskell type signature into a LiquidHaskell comment and add the refinements there. A future version that is more deeply integrated into the Haskell compiler may not need this code duplication.
+As described by Vazou et. al.~\cite{tpfa}, one can use LiquidHaskell to do complex equational reasoning that is machine checked. It uses refinement types~\cite{refinement_types} that add additional constraints on top of normal Haskell data types which are checked by an external SMT solver. By default LiquidHaskell uses the z3~\cite{z3} solver, but it also supports cvc4~\cite{cvc4}. For example, we can declare the type of integers greater or equal to zero using a type synonym:
 
 \begin{lstlisting}
 {-@ type Nat = { x:Int | x >= 0 } @-}
 \end{lstlisting}
 
-In LiquidHaskell, all functions need to terminate. Usually a suitable termination metric is automatically guessed, but in some more complicated cases, we can also manually supply this metric (see section~\ref{sec:append} for an example of this). A simple recursive function can be marked as \textit{measure} which allows the use of the function in those termination metrics as well as in the refinement itself. With the termination, LiquidHaskell is able to generate an induction principle for the function that can be used in a proof. Because LiquidHaskell is just Haskell, this induction amounts to a recursive call to the proof and is also used when defining ordinary Haskell functions with refinement on their types. For example the fact that the length of a list is never negative.
+LiquidHaskell annotations are multiline Haskell comments with "at" signs, such that the code still compiles even without LiquidHaskell. It also allows the user to name argument types, so they can be referred to later. At the time of writing one has to copy the Haskell type signature into a LiquidHaskell comment and add the refinements there. A future version that is integrated deeper into the Haskell compiler might not need this code duplication.
+
+In LiquidHaskell, all functions need to terminate. Usually a suitable termination metric is automatically deduced, but in some more complex cases, we can also manually supply this metric (see section~\ref{sec:append} for an example). With the termination, LiquidHaskell is able to generate an induction principle for the function that can be used in a proof. Because LiquidHaskell is just Haskell, this induction amounts to a recursive call to the proof and is also used when defining ordinary Haskell functions with refinement on their types. For example the fact that the length of a list is never negative:
 
 \begin{lstlisting}
 {-@ measure length @-}
@@ -178,10 +181,14 @@ length :: [a] -> Int
 length [] = 0 -- trivial, 0 >= 0
 length (x:xs) = 1 + length xs
     -- by induction: length xs >= 0
-    -- so 1 + length xs >= 0
+    -- thus 1 + length xs >= 0
 \end{lstlisting}
 
-LiquidHaskell also provides a set of proof combinators and a \texttt{Proof} type. This type is just a type alias for the normal Haskell unit type. The reasoning comes from the \texttt{===} operator that asserts that both sides of the equality are truly equal. As a simple example we can proof that the length of an \texttt{append} function is the sum of the lengths of the two original lists. As append is not a \textit{measure} (it does not return a natural number), we have to use \textit{reflection}~\cite{reflection} to lift it to the logic level of LiquidHaskell. The proof itself is done by case distinction on the first argument. This distinction is done by pattern matching on it like one would in a normal Haskell function. We start with stating the left hand side of the equation how it is in the refinement type and try to get to the right hand side of the equality by simplification and induction.
+To use functions in the refinements, one has to \textit{reflect}~\cite{reflection} them to the logic level. For a limited class of functions called \textit{measures}, this can be done while retaining full automatic reasoning. A measure is a function that takes only one argument which is an algebraic data type, has one equation per constructor of this data type and which only uses arithmetic functions and other measures in their right hand sides. Other function still can be used in refinements when annotated with \texttt{reflect}, but the SMT solver is not able to check those refinement automatically. The user always has to provide the proofs themselves.
+
+To do so, LiquidHaskell provides a set of proof combinators and a \texttt{Proof} type. This type is just a type alias for the normal Haskell unit type. The reasoning comes from the \texttt{===} operator that asserts that both sides of the equality are truly equal. For a simple example we prove that the length of \texttt{append} applied to two lists is the sum of the lengths of the two lists. Because \texttt{append} takes more than one argument, it is not a measure and thus we need to do the proof manually.
+
+First, we need to do a case distinction on the first argument. This is done by pattern matching on it like in a normal Haskell function. The rest of the proof is done by applying the definitions of the used functions, arithmetic equalities and induction:
 
 \begin{lstlisting}
 {-@ reflect append @-}
@@ -219,20 +226,22 @@ lengthP (x:xs) ys =
     *** QED
 \end{lstlisting}
 
-The triple star operator (\texttt{***}) and the \texttt{QED} type at the end are just to cast our proof to Haskell's unit type and to make the proof look nicer.
+The triple star operator (\texttt{***}) and the \texttt{QED} type at the end are just there to cast our proof to Haskell's unit type and improve readability.
 
 \section{Case studies}
 
 \subsection{Stack with Multipop}\label{sec:stack}
 
-To continue with the example from section~\ref{sec:complexity}, we want to prove that $multipop$ has an amortized complexity of \O{1}. This data structure and its operations could be defined like this in Haskell. We already add some refinements to assert that $k$ is not negative.
+To continue with the example from section~\ref{sec:complexity}, we prove that $multipop$ has an amortized complexity of \O{1}. This data structure and its operations are defined like the following in Haskell. We already add some refinements to assert that $k$ is not negative. Note that normally, \texttt{multipop} would return the removed elements in addition to the new stack, but as this is irrelevant to the proof and only makes it more verbose we omit this in our definition.
 
 \begin{lstlisting}
 data Stack a = Empty | Elem a (Stack a)
 
+{-@ reflect push @-}
 push :: a -> Stack a -> Stack a
-push = Elem
+push x s = Elem x s
 
+{-@ reflect multipop @-}
 {-@ multipop :: Nat -> Stack a -> Stack a @-}
 multipop :: Int -> Stack a -> Stack a
 multipop _ Empty = Empty
@@ -240,18 +249,21 @@ multipop 0 s = s
 multipop n (Elem _ s) = multipop (n - 1) s
 \end{lstlisting}
 
-To formally prove this with the physicist's method, we first need to define a potential $\Phi$ and a timing function for each of our operations that gives us the actual cost of that operation. As seen in section~\ref{sec:physicist}, we use the height of the stack as our potential. Thus we need to define a function that calculates the height of a stack. To define the timing functions, we copy the code for the operation, replace constant time steps with $1$ and adjust the recursion.
+To formally prove the amortized complexity with the physicist's method, we first need to define a potential $\Phi$ and a timing function for each of our operations that gives us the actual time cost of that operation. As seen in section~\ref{sec:physicist}, we use the height of the stack as our potential. Thus we need to define a function that calculates the height of a stack. To define the timing functions, we copy the code for the operation, replace constant time steps with $1$ and adjust the recursion:
 
 \begin{lstlisting}
+{-@ reflect phi @-}
 {-@ phi :: Stack a -> Nat @-}
 phi :: Stack a -> Int
 phi Empty = 0
 phi (Elem _ s) = 1 + phi s
 
+{-@ reflect pushT @-}
 {-@ pushT :: a -> Stack a -> Nat @-}
 pushT :: a -> Stack a -> Int
 pushT _ _ = 1
 
+{-@ reflect multipopT @-}
 {-@ multipopT :: Nat -> Stack a -> Nat @-}
 multipopT :: Int -> Stack a -> Int
 multipopT _ Empty = 1
@@ -259,17 +271,7 @@ multipopT 0 _ = 1
 multipopT n (Elem _ s) = 1 + multipopT (n - 1) s
 \end{lstlisting}
 
-To use those functions in a LiquidHaskell proof, we also need to reflect them into the logic level~\cite{reflection} by adding \texttt{reflect} annotations.
-
-\begin{lstlisting}
-{-@ reflect push @-}
-{-@ reflect pushT @-}
-{-@ reflect multipop @-}
-{-@ reflect multipopT @-}
-{-@ reflect phi @-}
-\end{lstlisting}
-
-First we will prove the complexity of \texttt{push}. While the amortized cost is the same as the actual cost, we need to make sure that our potential function does not cause those two to diverge. As LiquidHaskell does not allow quantifiers to ensure termination of the SMT solver, we need to guess an upper limit that our amortized runtime will have. As seen earlier in section~\ref{sec:banker}, we can pay two time units for a push to amortize the pops, so we will use $2$ as our guess. To specify our proof goal, we need to name the parameters in the LiquidHaskell annotation. After than we can use equational reasoning to proof our goal.
+First we will prove the complexity of \texttt{push}. While the amortized cost is in the same complexity class as the actual cost, we need to make sure that our potential function does not cause those two to diverge. LiquidHaskell does not allow quantifiers in refinement, because for functions other than measures, instanciating quantifiers in the SMT solver has unpredictable performance~\cite{lh_quantifiers}. This means we have to guess an upper limit for our amortized runtime. As seen earlier in section~\ref{sec:banker}, we can pay two time units for a push to amortize the pops, so we will use $2$ as our guess:
 
 \begin{lstlisting}
 import Language.Haskell.Liquid.ProofCombinators
@@ -287,7 +289,7 @@ pushP x s = pushT x s + phi (push x s) - phi s
   *** QED
 \end{lstlisting}
 
-To proof complexity of \texttt{multipop}, we will need to make a case distinction between the two base cases and the recursive case. With LiquidHaskell this is just a normal pattern match. Leaving the recursive case undefined for now, proving the base cases is very similar to \texttt{push}.
+To prove the complexity of \texttt{multipop}, we will need to distinquish between the two base cases and the recursive case. With LiquidHaskell this is just a normal pattern match. Leaving the recursive case undefined for now, proving the base cases is very similar to \texttt{push}:
 
 \begin{lstlisting}
 {-@ multipopP :: k:Nat -> s:Stack a ->
@@ -309,34 +311,34 @@ multipopP k Empty = multipopT k Empty
   *** QED
 \end{lstlisting}
 
-To avoid cluttering the proof of the recursive case, we use an \textit{as pattern} to alias \texttt{Elem x s} to \texttt{xs}. The first steps again are applying the definitions of the used functions and simplifying the result. In the end we use the \texttt{?} operator to add the induction hypothesis to the proof step and thus complete the proof.
+To avoid cluttering the proof of the recursive case, we use an \textit{as pattern} to alias \texttt{Elem x s} to \texttt{xs}. The first steps are again applying the definitions of the used functions and simplifying the result. In the end we use the \texttt{?} operator to add the induction hypothesis to the proof step and thus complete the proof:
 
 \begin{lstlisting}
 multipopP k xs@(Elem x s) = multipopT k xs
     + phi (multipop k xs) - phi xs
--- Use definition of multipopT for recusive case
+-- Use definition of multipopT for recursive case
   === (1 + multipopT (k - 1) s)
     + phi (multipop k xs) - phi xs
--- Use definition of multipop for recusive case
+-- Use definition of multipop for recursive case
   === (1 + multipopT (k - 1) s)
     + phi (multipop (k - 1) s) - phi xs
 -- Use definition of phi (Elem _ _)
   === (1 + multipopT (k - 1) s)
     + phi (multipop (k - 1) s) - (1 + phi s)
--- Remove parenthesis
+-- Remove parentheses
   === 1 + multipopT (k - 1) s
     + phi (multipop (k - 1) s) - 1 - phi s
 -- 1s cancel out
   === multipopT (k - 1) s
     + phi (multipop (k - 1) s) - phi s
--- use induction
+-- use induction hypothesis
   ? multipopP (k - 1) s
   *** QED
 \end{lstlisting}
 
-\subsection{Finger Tree}
+\subsection{Finger Tree}\label{sec:fingertree}
 
-To show that this approach scales also to more complicated data structures that are widely used in the industry, we will prove the complexity of a finger tree, the data structure behind \texttt{Data.Seq} from \textit{containers}~\cite{containers}. It is originally described by Hinze and Paterson~\cite{fingertrees}, which the implementation from \textit{containers} closely follows. The following definition is taken directly from \textit{containers}, but slightly modified to remove the size parameter. LiquidHaskell caused problems in the proofs when using type classes, so because the functions we will use do not use the size we omitted it. We will discuss such limitations more in depth in section~\ref{sec:limitations}.
+To show that this approach scales to more complicated data structures that are widely used in the industry, we will prove the complexity of finger trees, the data structure behind \texttt{Data.Seq} from \textit{containers}~\cite{containers}. It was originally described by Hinze and Paterson~\cite{fingertrees}, the implementation from \textit{containers} closely follows this description. The following definition is taken directly from \textit{containers}, but slightly modified to remove the size parameter. LiquidHaskell caused problems in the proofs when using type classes because at the time of writing it is not possible to replace a call to a polymorphic function with the implementation in its instance. None of the function we use in the proofs use this size parameter, so we omit it. We will discuss such limitations more in depth in section~\ref{sec:limitations}.
 
 \begin{lstlisting}
 data FingerTree a = Empty
@@ -351,11 +353,11 @@ data Digit a = One a
   | Four a a a a
 \end{lstlisting}
 
-The finger tree has between one and four \textit{digits} on either side to enable cheap \texttt{cons} and \texttt{snoc}. As shown by Claessen~\cite{fingertrees_new}, this would also work with a maximum of just three digits, but we will go with the definition from \textit{containers}. The most interesting point about the data structure is the polymorphic recursion that makes the data structure type safe as it guarantees equal nesting of \texttt{Node} types on both sides of the spine. It is also what makes it difficult to verify in other languages, because for example the Isabelle/HOL~\cite{isabelle} and the Lean~\cite{lean} theorem provers both do not directly support polymorphic recursion. In these languages, it is necessary to define the type such that it would allow uneven nesting of \texttt{Node}s and then "carve out" only the valid finger trees. Other provers like Coq~\cite{coq} support polymorphic recursion making a more direct one to one translation possible.
+The finger tree has between one and four \textit{digits} on either side to enable cheap \texttt{cons} and \texttt{snoc}. As shown by Claessen~\cite{fingertrees_new}, this would also work with a maximum of just three digits, but we will follow the definition from \textit{containers}. The most interesting property of the data structure is the polymorphic recursion. It makes the data structure type safe as it guarantees equal nesting of \texttt{Node} types on both sides of the spine. It is also what makes it difficult to verify in other languages, because for example the both Isabelle/HOL~\cite{isabelle} and the Lean~\cite{lean} theorem provers do not directly support polymorphic recursion. In these languages, it is necessary to define the type in such a way that it would allow uneven nesting of \texttt{Node}s and then "carve out" the subset of valid finger trees. Other provers like Coq~\cite{coq} support polymorphic recursion, allowing a more direct one to one translation.
 
 \subsubsection{Cons and Snoc}
 
-As the finger tree is a symmetric tree, \texttt{cons} and \texttt{snoc} are very similar. For this reason we will show an explicit proof only for \texttt{cons} and provide the proof for \texttt{snoc} in the appendix. First we again copy definition of \texttt{cons} from the \textit{containers} package, adjusting it slightly to remove the size information that would require the type class. Also, to later use the function in a proof we add a \texttt{reflect} pragma.
+Because the finger tree is a symmetric tree, \texttt{cons} and \texttt{snoc} are very similar. For this reason we show an explicit proof only for \texttt{cons} and provide the proof for \texttt{snoc} in the appendix. First we again copy the definition of \texttt{cons} from the \textit{containers} package, adjusting it slightly to remove the size information that would require the type class. In order to later use the function in a proof we add a \texttt{reflect} pragma.
 
 \begin{lstlisting}
 {-@ reflect cons @-}
@@ -373,7 +375,7 @@ cons a (Deep (Four b c d e) m sf) =
   Deep (Two a b) (cons (Node3 c d e) m) sf
 \end{lstlisting}
 
-The only complicated case is if we have already four digits at the front, as in all other cases we can simply increase the amount by one. In the case that we can not do so, we put the new data in front and push the "overflow" in to the recursion. The next step is to think of a valid potential function $\Phi$. Again, the intuition is which state of the data structure makes \texttt{cons} expensive. As seen above it is when the digit in the front is already full. So we can define the \textit{danger} of a digit as every state that will make the operation expensive. To also support and proof \texttt{uncons}, the inverse operation, we not only mark a full digit as dangerous, but also one that has only one element inside (as this would make \texttt{uncons} go into the recursion). Our potential is then the sum of the danger in the tree.
+The only complex case is if we already have four digits at the front, as in all other cases we can simply grow the digit in size. In the complex case, we put the new data in front and push the "overflow" into the recursion. The next step is to find a valid potential function $\Phi$. For this, we check which states of the data structure make \texttt{cons} expensive. As evident by the definition above, this is the case when the digit in the front is already full. So we can define the \textit{danger} of a digit as every state that will make the operation expensive. To also support \texttt{uncons}, the inverse operation, we not only mark a full digits as dangerous, but also one that has only one element inside (as this would make \texttt{uncons} go into the recursion). We then define the potential to be the sum of the danger in the tree.
 
 \begin{lstlisting}
 {-@ reflect dang @-}
@@ -393,7 +395,7 @@ phi (Deep pr m sf) =
   dang pr + phi m + dang sf
 \end{lstlisting}
 
-The timing function for cons is similar to the timing functions in the stack just a copy of the original function with all non-recursive cases return $1$.
+The timing function for \texttt{cons} is similar to the timing functions for the stack just a copy of the original function where all non-recursive cases return $1$.
 
 \begin{lstlisting}
 {-@ reflect consT @-}
@@ -408,7 +410,7 @@ consT _ (Deep (Four _ c d e) m _) =
   1 + consT (Node3 c d e) m
 \end{lstlisting}
 
-With all the preliminaries out of the way we can start proving the amortized complexity. Like with the stack we need to guess a constant that is an upper bound on our amortized run time. As we do not have a simple mental model like with the stack, we will delay this choice until we have proven the base cases. We will also use \textit{as patterns} again to avoid repetition.
+With all the required preliminaries defined, we start proving the amortized complexity. Just like in the stack example (see section~\ref{sec:stack}) we need to guess a constant that is an upper bound of our amortized run time. Because we do not have a simple mental model like with the stack, we will delay this choice until we have proven the base cases. We will also use \textit{as patterns} again to avoid repetition.
 
 \begin{lstlisting}
 {-@ consP :: x:a -> t:FingerTree a ->
@@ -437,7 +439,7 @@ consP x t@(Single a) =
   *** QED
 \end{lstlisting}
 
-We omit the proof cases for one to three digits, as they work exactly as the other two base cases. The constant however will not change in the other base cases, so $3$ really is our upper bound to use here. The interesting case is when we have four digits. In this case we need to use induction to proof our goal.
+We omit the proof cases for one to three digits, as they work exactly as the other two base cases. The constant however will not change in the other base cases, so $3$ really is our upper bound to use here. The interesting case is when there are four digits. In this case we need to use induction to prove our goal:
 
 \begin{lstlisting}
 consP x t@(Deep (Four a b c d) m sf) =
@@ -472,7 +474,7 @@ consP x t@(Deep (Four a b c d) m sf) =
 
 \subsubsection{Append}\label{sec:append}
 
-Similar to \texttt{push} in the stack, even though \texttt{append} has the same amortized complexity as its normal complexity, we need to show that it never increases the potential more than a logarithmic amount. Contrary to the simplified definition of Claessen~\cite{fingertrees_new}, the \textit{containers} package uses two sets of code generated, mutually recursive functions to implement \texttt{append}. One set of functions called \texttt{appendTreeX} handles the base cases where one of the two trees is either empty or consists of a singular element by using \texttt{cons} and \texttt{snoc}. In the recursive case it calls the \texttt{addDigitsX} functions that group arguments as \texttt{Node}s and itself call the \texttt{appendTreeX} functions. Because the \texttt{addDigitsX} functions do pattern match on their tree arguments at all, LiquidHaskell can not find a termination metric by itself. For this, we need to track the arguments across functions calls because \texttt{appendTreeX} has a strictly decreasing argument. We can do so by adding a ghost parameter to order the functions for LiquidHaskell. This order is lower for all \texttt{appendTreeX} functions than the \texttt{addDigitsX} functions. Additionally we need to set the case expansion to a high number such that all pattern matches are evaluation, else the termination proof fails. See the following snippet as an example with most cases and function omitted for brevity.
+Similar to the \texttt{push} operation on the stack, even though \texttt{append} has the same amortized complexity as its normal complexity, we need to show that it never increases the potential more than a logarithmic amount. Contrary to the simplified definition of Claessen~\cite{fingertrees_new}, the \textit{containers} package uses two sets of mutually recursive functions to implement \texttt{append}. One set of functions called \texttt{appendTreeX} handles the base cases where one of the two trees is either empty, or consists of a singular element by using \texttt{cons} and \texttt{snoc}. In the recursive case it calls the \texttt{addDigitsX} functions that group arguments as \texttt{Node}s and in turn call the \texttt{appendTreeX} functions. Because the \texttt{addDigitsX} functions do not pattern match on their tree arguments at all, LiquidHaskell can not find a termination metric automatically. For this, we need to track the arguments across functions calls because \texttt{appendTreeX} has a strictly decreasing argument. We can do so by adding a ghost parameter to order the functions for LiquidHaskell. This order is defined to be smaller for all \texttt{appendTreeX} functions than the \texttt{addDigitsX} functions. Additionally we need to set the case expansion to a high number such that all pattern matches are evaluated, else the termination proof would fail. The following snippet provides an example with most cases and function omitted for readability.
 
 \begin{lstlisting}
 {-@ LIQUID --max-case-expand=1000 @-}
@@ -508,18 +510,19 @@ addDigits1 m1 (One a) b (Two c d) m2 =
 -- further cases omitted
 \end{lstlisting}
 
-This case expansion results in an explosion of constraints for the SMT solver to check. While the whole proof for \texttt{cons} including the defined functions generates less than 100 constraints, this termination proof generates over 3000. This leads to extremely high compile times. This is made worse by the need to define a timing function that needs to follow this mutually recursive structure and generates an additional 8000 constraints such that loading the file takes several minutes. Another problem is the logarithmic runtime itself. SMT provers are great with linear arithmetic, but are significantly slower with multiplication. Division is usually left as an unevaluated function. While one can transform the proof goal to turn logarithms into powers, it still requires assuming basic arithmetic rules on the logic level.
+This case expansion results in an explosion of constraints for the SMT solver to check. While the whole proof for \texttt{cons} including the defined functions generates fewer than 100 constraints, this termination proof generates over 3000. This leads to extremely high compile times which is further complicated by the need to define a timing function. The function needs to follow this mutually recursive structure and generates an additional 8000 constraints, such that loading the file takes several minutes. Another problem is the logarithmic runtime itself. SMT solvers are great with linear arithmetic, but are significantly slower when tasked with multiplication. Division is usually left as an unevaluated function. While it is possible to transform the proof goal to convert logarithms into powers, it still requires assumptions about basic arithmetic rules on the logic level.
 
-For those reasons, using LiquidHaskell to proof the complexity with the physicist's method is not feasible (see section~\ref{sec:limitations} for a discussion of those limitations). Claessen~\cite{fingertrees_new} also does not formally proof this in his functional pearl, but provides a different reasoning to why \texttt{append} still is logarithmic. The potential only depends on the spine of the tree, so a new layer in the tree only adds at most a constant amount to the potential ($2$ if both digits are dangerous) making it grow linearly. Because the nodes in the digits always at least double (in the case of two \texttt{Node2}) the overall size of the tree grows exponentially. Thus the potential grows logarithmic compared to the size of the tree.
+For those reasons, using LiquidHaskell to proof the complexity with the physicist's method is not feasible (see section~\ref{sec:limitations} for a discussion of those limitations). Claessen~\cite{fingertrees_new} does not formally prove this in his functional pearl as well, but provides a different reasoning to why \texttt{append} is logarithmic. The potential only depends on the spine of the tree, so a new layer in the tree only adds at most a constant amount to the potential ($2$ if both digits are dangerous) making it grow linearly. Because the nodes in the digits always at least double (in the case of two \texttt{Node2}) the overall size of the tree grows exponentially. Thus the potential grows logarithmic in terms of the size of the tree.
 
+\section{Limitations of our approach}\label{sec:limitations}
 
 \subsection{Definition of the timing function}
 
-One of the points where the analysis may lead to wrong results is if the timing function does not directly mirror the original function. So when the implementation changes and the timing function does not, it might be possible for the proofs to still pass. While this is unlikely, given how verbose proofs with LiquidHaskell are, it is not negligible.
+The analysis could lead to wrong results is if the timing function does not directly mirror the original function. When the implementation changes and the timing function does not, it might be possible for the proofs to still pass despite being invalid. While this is unlikely, given how verbose proofs with LiquidHaskell are, it is not negligible.
 
-If one is in control of the source code and can change the implementation, it would be possible to factor out the recursion and share it between the implementation and the timing function. This however would clutter the implementation and most likely decrease performance as it is often the case with recursion schemes.
+If it is possible to change the implementation, it would be possible to factor out the recursion and share it between the implementation and the timing function. This however would clutter the implementation and most likely decrease performance as it is often the case with recursion schemes.
 
-A better solution would be to derive the timing function using meta programming in the form of TemplateHaskell. This meta function would take the name of the function in the implementation and create a new one with a configurable suffix. To do so it would check if the right hand sides contain a recursive call to the given name. If not, it replaces the right hand side with $1$, otherwise it changes the recursion to use the name with suffix and add $1$ at the end. The resulting function could then be spliced back into the source code.
+A better solution is to derive the timing function using meta programming in the form of \textit{TemplateHaskell}. Given the name of the function in the implementation, TemplateHaskell would allow to create a new function with a configurable suffix. This can be done by checking if the right hand sides of the original function contain recursive calls to the given name. If not, replace the right hand side with $1$, otherwise change the recursion to use the name with the suffix and add $1$ at the end. The resulting timing function is then be spliced back into the source code:
 
 \begin{lstlisting}
 cons :: a -> FingerTree a -> FingerTree a
@@ -539,15 +542,15 @@ $(mkTimingFn "T" ''cons)
 
 \subsection{LiquidHaskell for verification}
 
-As shown in earlier sections, LiquidHaskell has some limitations at the moment with regards to proving more complex functions. First and foremost the support for type classes or at least the support for instances involving Haskell \texttt{newtype}s is not great. Currently, LiquidHaskell only supports measure classes, which need to be defined by recursion over a single data type similar to a normal measure. For this reason it was not possible to use it for the \texttt{Sized} type class from \textit{containers}. There are several open issues about the type class support on the LiquidHaskell bug tracker, so we expect this to get better in the future.
+As shown in earlier sections, at the time of writing LiquidHaskell has some limitations with regards to proving more complex functions. First and foremost the support for type classes and Haskell \texttt{newtype}s is insufficient. Currently, LiquidHaskell only supports measure classes, which need to be defined by recursion over a single data type similar to a normal measure. For this reason it is not possible to use them for the size parameter in finger trees (see section~\ref{sec:fingertree}). There are several open tickets concerning the type class support on the LiquidHaskell bug tracker, so we expect this to improve in the future.
 
-Another pain point was the combinatorial explosion when generating the constraints for the termination of \texttt{append} (see section~\ref{sec:append}). It might be possible to be smarter when generating the constraints here and thus creating less work for the SMT solver. LiquidHaskell also provides an option to disable the termination checker, but enabling this option surprisingly did not improve compile time. In fact, several other options that are supposed to improve performance lik \texttt{{-}{-}diff} which enables incremental type checking or \texttt{{-}{-}fast} which disables inference of polymorphic refinement, did either not affect performance at all or (in the case of \texttt{{-}{-}fast}) made it even worse.
+Another road block was the combinatorial explosion when generating the constraints for the termination of \texttt{append} (see section~\ref{sec:append}). It might be possible to improve the constraint generation and thus create less work for the SMT solver. LiquidHaskell also provides an option to disable the termination checker, but with this option the compile time surprisingly did not change. Similarly, several other options that are supposed to improve performance like \texttt{{-}{-}diff}, which enables incremental type checking or \texttt{{-}{-}fast}, which disables inference of polymorphic refinement, did either not affect performance at all or (in the case of \texttt{{-}{-}fast}) made it even worse.
 
-\section{Conclusion}
+\section{Conclusion}\label{sec:conclusion}
 
-Despite the current limitations of LiquidHaskell preventing more complicated functions from being proved formally, there is still a lot of value in this approach. Proving complexity of core data structures immediately pays back in a huge gain in confidence across the many applications that depend on them. While at the moment, amortized complexity of \O{1} seems to be the most feasable to proof, we expect the tooling around LiquidHaskell to improve a lot in the future, be it by incremental changes like better support for type classes or by more complicated means like a deeper embedding into a future dependently typed Haskell core.
+Despite the current limitations of LiquidHaskell preventing more complex functions from being formally proven, it drastically improves the readability of proofs compared to other theorem provers. The explicit equational reasoning of LiquidHaskell makes following the proof a lot easier than in tactic based provers like Coq and Lean. While Isabelle/HOL also features equational reasoning with Isar~\cite{isar}, it does not support polymorphic recursion which makes the definition of our second example a lot harder.
 
-Aside from the industry application, we think this approach also has a big didactic advantage. To learn more about the complexity of data structures, a learner does not need to learn a new language on top of new concepts, but instead can use the language they already know to apply their new knowledge. The recent improvements in the usability of LiquidHaskell --- turning the previously standalone executable into a GHC plugin~\cite{lh_plugin} --- play a big role here as it drastically reduces the barrier of entry.
+While at the moment amortized complexity of \O{1} seems to be the most feasable to prove, we expect the tooling around LiquidHaskell to improve a lot in the future, be it by incremental changes like better support for type classes, or by more complicated means like a deeper embedding into a future dependently typed Haskell core. The recent improvements in the usability of LiquidHaskell --- that were achieved by turning the previously standalone executable into a GHC plugin~\cite{lh_plugin} --- are already a big step into this future by drastically reducing the barrier of entry.
 
 %%
 %% The acknowledgments section is defined using the "acks" environment

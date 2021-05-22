@@ -64,13 +64,90 @@ url="https://doi.org/10.1007/978-3-662-07964-5"
   note = "[Online; accessed 2021-05-15]"
 }
 
-@mis{lh_plugin,
+@misc{lh_plugin,
   author = {Alfredo Di Napoli},
   title = {Implementing a GHC plugin for LiquidHaskell},
   howpublished = "\url{https://well-typed.com/blog/2020/08/implementing-a-ghc-plugin-for-liquid-haskell}",
   year = {2020},
   note = "[Online; accessed 2021-05-15]"
 }
+
+@misc{hackage,
+  author = {The hackage administrators},
+  title = {Hackage: The Haskell Package Repository},
+  howpublished = "\url{https://hackage.haskell.org/}",
+  year = {2007},
+  note = "[Online; accessed 2021-05-15]"
+}
+
+@InProceedings{isar,
+author="Nipkow, Tobias",
+editor="Geuvers, Herman
+and Wiedijk, Freek",
+title="Structured Proofs in Isar/HOL",
+booktitle="Types for Proofs and Programs",
+year="2003",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="259--278",
+abstract="Isar is an extension of the theorem prover Isabelle with a language for writing human-readable structured proofs. This paper is an introduction to the basic constructs of this language.",
+isbn="978-3-540-39185-2"
+}
+
+@InProceedings{lh_quantifiers,
+author="Leino, K. R. M.
+and Pit-Claudel, Cl{\'e}ment",
+editor="Chaudhuri, Swarat
+and Farzan, Azadeh",
+title="Trigger Selection Strategies to Stabilize Program Verifiers",
+booktitle="Computer Aided Verification",
+year="2016",
+publisher="Springer International Publishing",
+address="Cham",
+pages="361--381",
+abstract="SMT-based program verifiers often suffer from the so-called butterfly effect, in which minor modifications to the program source cause significant instabilities in verification times, which in turn may lead to spurious verification failures and a degraded user experience. This paper identifies matching loops (ill-behaved quantifiers causing an SMT solver to repeatedly instantiate a small set of quantified formulas) as a significant contributor to these instabilities, and describes some techniques to detect and prevent them. At their core, the contributed techniques move the trigger selection logic away from the SMT solver and into the high-level verifier: this move allows authors of verifiers to annotate, rewrite, and analyze user-written quantifiers to improve the solver's performance, using information that is easily available at the source level but would be hard to extract from the heavily encoded terms that the solver works with. The paper demonstrates three core techniques (quantifier splitting, trigger sharing, and matching loop detection) by extending the Dafny verifier with its own trigger selection routine, and demonstrates significant predictability and performance gains on both Dafny's test suite and large verification efforts using Dafny.",
+isbn="978-3-319-41528-4"
+}
+
+@Article{complexity_isabelle,
+author={Nipkow, Tobias
+and Brinkop, Hauke},
+title={Amortized Complexity Verified},
+journal={Journal of Automated Reasoning},
+year={2019},
+month={Mar},
+day={01},
+volume={62},
+number={3},
+pages={367-391},
+abstract={A framework for the analysis of the amortized complexity of functional data structures is formalized in the proof assistant Isabelle/HOL and applied to a number of standard examples and to the following non-trivial ones: skew heaps, splay trees, splay heaps and pairing heaps. The proofs are completely algebraic and are presented in some detail.},
+issn={1573-0670},
+doi={10.1007/s10817-018-9459-3},
+url={https://doi.org/10.1007/s10817-018-9459-3}
+}
+
+
+@inproceedings{complexity_coq,
+  author = {Armaël Guéneau and Arthur Charguéraud and François Pottier},
+  title = {A Fistful of Dollars: Formalizing Asymptotic Complexity Claims via Deductive Program Verification},
+  booktitle = {European Symposium on Programming (ESOP)},
+  year = {2018},
+  pdf = {http://gallium.inria.fr/~agueneau/publis/gueneau-chargueraud-pottier-coq-bigO.pdf},
+  abstract = { We present a framework for simultaneously verifying the
+                  functional correctness and the worst-case asymptotic time
+                  complexity of higher-order imperative programs. We build on
+                  top of Separation Logic with Time Credits, embedded in an
+                  interactive proof assistant. We formalize the O notation,
+                  which is key to enabling modular specifications and proofs. We
+                  cover the subtleties of the multivariate case, where the
+                  complexity of a program fragment depends on multiple
+                  parameters. We propose a way of integrating complexity bounds
+                  into specifications, present lemmas and tactics that support a
+                  natural reasoning style, and illustrate their use with a
+                  collection of examples. },
+  soft = {https://gitlab.inria.fr/agueneau/coq-bigO/}
+}
+
 
 @InBook{lean,
 author="de Moura, Leonardo
