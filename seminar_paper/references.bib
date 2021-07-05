@@ -1,0 +1,353 @@
+@InProceedings{hipspec,
+author="Claessen, Koen
+and Johansson, Moa
+and Ros{\'e}n, Dan
+and Smallbone, Nicholas",
+editor="Bonacina, Maria Paola",
+title="Automating Inductive Proofs Using Theory Exploration",
+booktitle="Automated Deduction -- CADE-24",
+year="2013",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="392--406",
+abstract="HipSpec is a system for automatically deriving and proving properties about functional programs. It uses a novel approach, combining theory exploration, counterexample testing and inductive theorem proving. HipSpec automatically generates a set of equational theorems about the available recursive functions of a program. These equational properties make up an algebraic specification for the program and can in addition be used as a background theory for proving additional user-stated properties. Experimental results are encouraging: HipSpec compares favourably to other inductive theorem provers and theory exploration systems.",
+isbn="978-3-642-38574-2"
+}
+
+@book{isabelle,
+author="Nipkow, Tobias
+and Wenzel, Markus
+and Paulson, Lawrence C.",
+title="Isabelle/HOL: A Proof Assistant for Higher-Order Logic",
+year="2002",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+abstract="This book is a tutorial on how to use the theorem prover Isabelle/HOL as a specification and verification system. Isabelle is a generic system for implementing logical formalisms, and Isabelle/HOL is the specialization of Isabelle for HOL,which abbreviates Higher-Order Logic. We introduce HOL step by step following the equation HOL = Functional Programming+ Logic.",
+isbn="978-3-540-45949-1",
+doi="10.1007/3-540-45949-9",
+url="https://doi.org/10.1007/3-540-45949-9"
+}
+
+@InProceedings{z3,
+author="de Moura, Leonardo
+and Bj{\o}rner, Nikolaj",
+editor="Ramakrishnan, C. R.
+and Rehof, Jakob",
+title="Z3: An Efficient SMT Solver",
+booktitle="Tools and Algorithms for the Construction and Analysis of Systems",
+year="2008",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="337--340",
+abstract="Satisfiability Modulo Theories (SMT) problem is a decision problem for logical first order formulas with respect to combinations of background theories such as: arithmetic, bit-vectors, arrays, and uninterpreted functions. Z3 is a new and efficient SMT Solver freely available from Microsoft Research. It is used in various software verification and analysis applications.",
+isbn="978-3-540-78800-3"
+}
+
+@book{coq,
+author="Bertot, Yves
+and Cast{\'e}ran, Pierre",
+title="Interactive Theorem Proving and Program Development: Coq'Art: The Calculus of Inductive Constructions",
+year="2004",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+abstract="Coq [37] is a proof assistant with which students, researchers, or engineers can express specifications and develop programs that fulfill these specifications. This tool is well adapted to develop programs for which absolute trust is required: for example, in telecommunication, transportation, energy, banking, etc. In these domains the need for programs that rigorously conform to specifications justifies the effort required to verify these programs formally. We shall see in this book how a proof assistant like Coq can make this work easier.",
+isbn="978-3-662-07964-5",
+doi="10.1007/978-3-662-07964-5",
+url="https://doi.org/10.1007/978-3-662-07964-5"
+}
+
+@inproceedings{hs-to-coq,
+author = {Spector-Zabusky, Antal and Breitner, Joachim and Rizkallah, Christine and Weirich, Stephanie},
+title = {Total Haskell is Reasonable Coq},
+year = {2018},
+isbn = {9781450355865},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3167092},
+doi = {10.1145/3167092},
+abstract = { We would like to use the Coq proof assistant to mechanically verify properties of Haskell programs. To that end, we present a tool, named <tt>hs-to-coq</tt>, that translates total Haskell programs into Coq programs via a shallow embedding. We apply our tool in three case studies – a lawful <tt>Monad</tt> instance, “Hutton’s razor”, and an existing data structure library – and prove their correctness. These examples show that this approach is viable: both that <tt>hs-to-coq</tt> applies to existing Haskell code, and that the output it produces is amenable to verification. },
+booktitle = {Proceedings of the 7th ACM SIGPLAN International Conference on Certified Programs and Proofs},
+pages = {14–27},
+numpages = {14},
+keywords = {Coq, Haskell, verification},
+location = {Los Angeles, CA, USA},
+series = {CPP 2018}
+}
+
+@misc{haskabelle,
+  author = {The Haskabelle developers},
+  title = {Haskabelle},
+  howpublished = "\url{https://isabelle.in.tum.de/website-Isabelle2009/haskabelle.html}",
+  year = {2009},
+  note = "[Online; accessed 2021-06-13]"
+}
+
+
+@misc{containers,
+  author = {The containers maintainers},
+  title = {The "containers" package},
+  howpublished = "\url{http://hackage.haskell.org/package/containers}",
+  year = {2020},
+  note = "[Online; accessed 2021-05-15]"
+}
+
+@misc{lh_plugin,
+  author = {Alfredo Di Napoli},
+  title = {Implementing a GHC plugin for LiquidHaskell},
+  howpublished = "\url{https://well-typed.com/blog/2020/08/implementing-a-ghc-plugin-for-liquid-haskell}",
+  year = {2020},
+  note = "[Online; accessed 2021-05-15]"
+}
+
+@misc{amortized,
+  author = {Jan van Brügge},
+  title = {Liquid Amortization - Proving amortized complexity with LiquidHaskell (Functional Pearl)},
+  howpublished = "\url{https://github.com/jvanbruegge/liquidhaskell-amortized-complexity/releases/download/v1/liquid_amortization.pdf}",
+  year = {2021},
+  note = "[Online; accessed 2021-06-12]"
+}
+
+
+@misc{hackage,
+  author = {The hackage administrators},
+  title = {Hackage: The Haskell Package Repository},
+  howpublished = "\url{https://hackage.haskell.org/}",
+  year = {2007},
+  note = "[Online; accessed 2021-05-15]"
+}
+
+@techreport{smt-lib,
+    author = {Clark Barrett and Aaron Stump and Cesare Tinelli and Sascha Boehme and David Cok and David Deharbe and Bruno Dutertre and Pascal Fontaine and Vijay Ganesh and Alberto Griggio and Jim Grundy and Paul Jackson and Albert Oliveras and Sava Krstić and Michal Moskal and Leonardo De Moura and Roberto Sebastiani},
+    title = {C.: The SMT-LIB Standard: Version 2.0},
+    institution = {},
+    year = {2010}
+}
+
+@InProceedings{isar,
+author="Nipkow, Tobias",
+editor="Geuvers, Herman
+and Wiedijk, Freek",
+title="Structured Proofs in Isar/HOL",
+booktitle="Types for Proofs and Programs",
+year="2003",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="259--278",
+abstract="Isar is an extension of the theorem prover Isabelle with a language for writing human-readable structured proofs. This paper is an introduction to the basic constructs of this language.",
+isbn="978-3-540-39185-2"
+}
+
+@InProceedings{lh_quantifiers,
+author="Leino, K. R. M.
+and Pit-Claudel, Cl{\'e}ment",
+editor="Chaudhuri, Swarat
+and Farzan, Azadeh",
+title="Trigger Selection Strategies to Stabilize Program Verifiers",
+booktitle="Computer Aided Verification",
+year="2016",
+publisher="Springer International Publishing",
+address="Cham",
+pages="361--381",
+abstract="SMT-based program verifiers often suffer from the so-called butterfly effect, in which minor modifications to the program source cause significant instabilities in verification times, which in turn may lead to spurious verification failures and a degraded user experience. This paper identifies matching loops (ill-behaved quantifiers causing an SMT solver to repeatedly instantiate a small set of quantified formulas) as a significant contributor to these instabilities, and describes some techniques to detect and prevent them. At their core, the contributed techniques move the trigger selection logic away from the SMT solver and into the high-level verifier: this move allows authors of verifiers to annotate, rewrite, and analyze user-written quantifiers to improve the solver's performance, using information that is easily available at the source level but would be hard to extract from the heavily encoded terms that the solver works with. The paper demonstrates three core techniques (quantifier splitting, trigger sharing, and matching loop detection) by extending the Dafny verifier with its own trigger selection routine, and demonstrates significant predictability and performance gains on both Dafny's test suite and large verification efforts using Dafny.",
+isbn="978-3-319-41528-4"
+}
+
+@Article{complexity_isabelle,
+author={Nipkow, Tobias
+and Brinkop, Hauke},
+title={Amortized Complexity Verified},
+journal={Journal of Automated Reasoning},
+year={2019},
+month={Mar},
+day={01},
+volume={62},
+number={3},
+pages={367-391},
+abstract={A framework for the analysis of the amortized complexity of functional data structures is formalized in the proof assistant Isabelle/HOL and applied to a number of standard examples and to the following non-trivial ones: skew heaps, splay trees, splay heaps and pairing heaps. The proofs are completely algebraic and are presented in some detail.},
+issn={1573-0670},
+doi={10.1007/s10817-018-9459-3},
+url={https://doi.org/10.1007/s10817-018-9459-3}
+}
+
+
+@inproceedings{complexity_coq,
+  author = {Armaël Guéneau and Arthur Charguéraud and François Pottier},
+  title = {A Fistful of Dollars: Formalizing Asymptotic Complexity Claims via Deductive Program Verification},
+  booktitle = {European Symposium on Programming (ESOP)},
+  year = {2018},
+  pdf = {http://gallium.inria.fr/~agueneau/publis/gueneau-chargueraud-pottier-coq-bigO.pdf},
+  abstract = { We present a framework for simultaneously verifying the
+                  functional correctness and the worst-case asymptotic time
+                  complexity of higher-order imperative programs. We build on
+                  top of Separation Logic with Time Credits, embedded in an
+                  interactive proof assistant. We formalize the O notation,
+                  which is key to enabling modular specifications and proofs. We
+                  cover the subtleties of the multivariate case, where the
+                  complexity of a program fragment depends on multiple
+                  parameters. We propose a way of integrating complexity bounds
+                  into specifications, present lemmas and tactics that support a
+                  natural reasoning style, and illustrate their use with a
+                  collection of examples. },
+  soft = {https://gitlab.inria.fr/agueneau/coq-bigO/}
+}
+
+
+@InBook{lean,
+author="de Moura, Leonardo
+and Kong, Soonho
+and Avigad, Jeremy
+and van Doorn, Floris
+and von Raumer, Jakob",
+editor="Felty, Amy P.
+and Middeldorp, Aart",
+title="The Lean Theorem Prover (System Description)",
+booktitle="Automated Deduction - CADE-25",
+year="2015",
+publisher="Springer International Publishing",
+address="Cham",
+pages="378--388",
+abstract="Lean is a new open source theorem prover being developed at Microsoft Research and Carnegie Mellon University, with a small trusted kernel based on dependent type theory. It aims to bridge the gap between interactive and automated theorem proving, by situating automated tools and methods in a framework that supports user interaction and the construction of fully specified axiomatic proofs. Lean is an ongoing and long-term effort, but it already provides many useful components, integrated development environments, and a rich API which can be used to embed it into other systems. It is currently being used to formalize category theory, homotopy type theory, and abstract algebra. We describe the project goals, system architecture, and main features, and we discuss applications and continuing work.",
+isbn="978-3-319-21401-6"
+}
+
+@inproceedings{cvc4,
+  author    = {Clark W. Barrett and
+               Christopher L. Conway and
+               Morgan Deters and
+               Liana Hadarean and
+               Dejan Jovanovic and
+               Tim King and
+               Andrew Reynolds and
+               Cesare Tinelli},
+  editor    = {Ganesh Gopalakrishnan and
+               Shaz Qadeer},
+  title     = {{CVC4}},
+  booktitle = {Computer Aided Verification - 23rd International Conference, {CAV}
+               2011, Snowbird, UT, USA, July 14-20, 2011. Proceedings},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {6806},
+  pages     = {171--177},
+  publisher = {Springer},
+  year      = {2011},
+  url       = {https://doi.org/10.1007/978-3-642-22110-1\_14},
+  doi       = {10.1007/978-3-642-22110-1\_14},
+  biburl    = {https://dblp.org/rec/conf/cav/BarrettCDHJKRT11.bib},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
+
+@phdthesis{liquidhaskell,
+author="Niki Vazou",
+title="Liquid Haskell: Haskell as a Theorem Prover",
+school="University of California",
+address="San Diego, CA",
+year="2016"
+}
+
+@inproceedings{refinement_types,
+author = {Freeman, Tim and Pfenning, Frank},
+title = {Refinement Types for ML},
+year = {1991},
+isbn = {0897914287},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/113445.113468},
+doi = {10.1145/113445.113468},
+booktitle = {Proceedings of the ACM SIGPLAN 1991 Conference on Programming Language Design and Implementation},
+pages = {268–277},
+numpages = {10},
+location = {Toronto, Ontario, Canada},
+series = {PLDI '91}
+}
+
+@article{reflection,
+author = {Vazou, Niki and Tondwalkar, Anish and Choudhury, Vikraman and Scott, Ryan G. and Newton, Ryan R. and Wadler, Philip and Jhala, Ranjit},
+title = {Refinement Reflection: Complete Verification with SMT},
+year = {2017},
+issue_date = {January 2018},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {2},
+number = {POPL},
+url = {https://doi.org/10.1145/3158141},
+doi = {10.1145/3158141},
+abstract = {We introduce Refinement Reflection, a new framework for building SMT-based deductive verifiers. The key idea is to reflect the code implementing a user-defined function into the function’s (output) refinement type. As a consequence, at uses of the function, the function definition is instantiated in the SMT logic in a precise fashion that permits decidable verification. Reflection allows the user to write equational proofs of programs just by writing other programs using pattern-matching and recursion to perform case-splitting and induction. Thus, via the propositions-as-types principle, we show that reflection permits the specification of arbitrary functional correctness properties. Finally, we introduce a proof-search algorithm called Proof by Logical Evaluation that uses techniques from model checking and abstract interpretation, to completely automate equational reasoning. We have implemented reflection in Liquid Haskell and used it to verify that the widely used instances of the Monoid, Applicative, Functor, and Monad typeclasses actually satisfy key algebraic laws required to make the clients safe, and have used reflection to build the first library that actually verifies assumptions about associativity and ordering that are crucial for safe deterministic parallelism.},
+journal = {Proc. ACM Program. Lang.},
+month = dec,
+articleno = {53},
+numpages = {31},
+keywords = {verification, theorem proving, refinement types, Haskell}
+}
+
+@article{10.1145/113446.113468,
+author = {Freeman, Tim and Pfenning, Frank},
+title = {Refinement Types for ML},
+year = {1991},
+issue_date = {June 1991},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {26},
+number = {6},
+issn = {0362-1340},
+url = {https://doi.org/10.1145/113446.113468},
+doi = {10.1145/113446.113468},
+journal = {SIGPLAN Not.},
+month = may,
+pages = {268–277},
+numpages = {10}
+}
+
+
+@inproceedings{fingertrees_new,
+author = {Claessen, Koen},
+title = {Finger Trees Explained Anew, and Slightly Simplified (Functional Pearl)},
+year = {2020},
+isbn = {9781450380508},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3406088.3409026},
+doi = {10.1145/3406088.3409026},
+abstract = {We explicitly motivate the subtle intricacies of Hinze and Paterson's Finger Tree datastructure, by step-wise refining a naive implementation. The result is a new explanation of how Finger Trees work and why they have the particular structure they have, and also a small simplification of the original implementation.},
+booktitle = {Proceedings of the 13th ACM SIGPLAN International Symposium on Haskell},
+pages = {31–38},
+numpages = {8},
+keywords = {finger trees, datastructures, functional pearl, amortized complexity},
+location = {Virtual Event, USA},
+series = {Haskell 2020}
+}
+
+@inproceedings{tpfa,
+author = {Vazou, Niki and Breitner, Joachim and Kunkel, Rose and Van Horn, David and Hutton, Graham},
+title = {Theorem Proving for All: Equational Reasoning in Liquid Haskell (Functional Pearl)},
+year = {2018},
+isbn = {9781450358354},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3242744.3242756},
+doi = {10.1145/3242744.3242756},
+abstract = {Equational reasoning is one of the key features of pure functional languages such as Haskell. To date, however, such reasoning always took place externally to Haskell, either manually on paper, or mechanised in a theorem prover. This article shows how equational reasoning can be performed directly and seamlessly within Haskell itself, and be checked using Liquid Haskell. In particular, language learners --- to whom external theorem provers are out of reach --- can benefit from having their proofs mechanically checked. Concretely, we show how the equational proofs and derivations from Graham's textbook can be recast as proofs in Haskell (spoiler: they look essentially the same).},
+booktitle = {Proceedings of the 11th ACM SIGPLAN International Symposium on Haskell},
+pages = {132–144},
+numpages = {13},
+keywords = {Liquid Haskell, Haskell, program optimization, equational reasoning, theorem proving},
+location = {St. Louis, MO, USA},
+series = {Haskell 2018}
+}
+
+@article{fingertrees,
+author = {Hinze, Ralf and Paterson, Ross},
+title = {Finger Trees: A Simple General-Purpose Data Structure},
+year = {2006},
+issue_date = {March 2006},
+publisher = {Cambridge University Press},
+address = {USA},
+volume = {16},
+number = {2},
+issn = {0956-7968},
+url = {https://doi.org/10.1017/S0956796805005769},
+doi = {10.1017/S0956796805005769},
+abstract = {We introduce 2-3 finger trees, a functional representation of persistent sequences supporting access to the ends in amortized constant time, and concatenation and splitting in time logarithmic in the size of the smaller piece. Representations achieving these bounds have appeared previously, but 2-3 finger trees are much simpler, as are the operations on them. Further, by defining the split operation in a general form, we obtain a general purpose data structure that can serve as a sequence, priority queue, search tree, priority search queue and more.},
+journal = {J. Funct. Program.},
+month = mar,
+pages = {197–217},
+numpages = {21}
+}

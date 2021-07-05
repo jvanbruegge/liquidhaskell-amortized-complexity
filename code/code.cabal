@@ -48,13 +48,7 @@ executable code
   main-is:             Main.hs
 
   other-modules:       Stack
-                     , Seq
-                     , Lemmas
-                     , Proofs.Cons
-                     , Proofs.Tails
-                     , Proofs.Snoc
-                     , Proofs.Concat
-                     , Proofs.ConcatTime
+                     , Test
 
   ghc-options:         -threaded
                        -rtsopts
