@@ -1,4 +1,4 @@
-cabal-version:       2.4
+cabal-version:       2.2
 name:                code
 version:             0.0.0.0
 synopsis:            Code for the seminar paper
@@ -7,12 +7,12 @@ license:             MIT
 license-file:        LICENSE
 author:              Jan van Brügge
 maintainer:          Jan van Brügge <supermanitu@gmail.com>
-copyright:           2021 Jan van Brügge
+copyright:           2022 Jan van Brügge
 category:            Data
 build-type:          Simple
 extra-doc-files:     README.md
                      CHANGELOG.md
-tested-with:         GHC == 8.10.4
+tested-with:         GHC == 9.0.2
 
 common common-options
   build-depends:       liquid-base

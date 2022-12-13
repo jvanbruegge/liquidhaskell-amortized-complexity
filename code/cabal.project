@@ -1,0 +1,15 @@
+packages: .
+
+source-repository-package
+    type: git
+    location: https://github.com/ucsd-progsys/liquidhaskell
+    tag: dce33e919f41d2248cd1940e6f7c8c41099be83b
+    subdir: . liquid-base liquid-ghc-prim liquid-prelude liquid-containers
+
+source-repository-package
+    type: git
+    location: https://github.com/ucsd-progsys/liquid-fixpoint
+    tag: 64f1edd5ee5d6d8f4cf93286a89a08d22ac0f4bf
+
+constraints:
+  rest-rewrite >= 0.4.0
