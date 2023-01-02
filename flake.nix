@@ -13,8 +13,8 @@
       liquidhaskell-source = pkgs.fetchFromGitHub {
         owner = "ucsd-progsys";
         repo = "liquidhaskell";
-        rev = "dce33e919f41d2248cd1940e6f7c8c41099be83b";
-        sha256 = "04yrkzvn3rl3slbsbvbfh3n0bi712i5ipwli0zb6dggv55f4a3fc";
+        rev = "b86fb5b461a70d07fb7e97ccdbdd0ee330bf3396";
+        sha256 = "sha256-4Uryni2Tpo5FGJPNZfBdJm5WfaZ/4uarXcOKwqDb33A=";
       };
 
       mkLiquidPkg = name: (pkgs.haskell.lib.doJailbreak (
@@ -30,17 +30,15 @@
               pkgs.fetchFromGitHub {
                 owner = "ucsd-progsys";
                 repo = "liquid-fixpoint";
-                rev = "64f1edd5ee5d6d8f4cf93286a89a08d22ac0f4bf";
-                sha256 = "1v5is2sya05ipmxybdigm78cblhilbqcf90qj0i0gpx431vs41y9";
+                rev = "c597c2ba3554ddfcf787cca45ee2e2d2ed984d76";
+                sha256 = "sha256-rBqcAA/DGYOU7kbj06948nNxqr7FPyNwSVPgUS76KwI=";
               }) { };
 
             liquidhaskell = (haskellPackages.callCabal2nix "liquidhaskell" liquidhaskell-source { }).overrideAttrs (_: {
               doCheck = false;
             });
             liquid-ghc-prim = mkLiquidPkg "liquid-ghc-prim";
-            liquid-base = (mkLiquidPkg "liquid-base").overrideAttrs(_: {
-              postPatch = "sed -i -e 's/== 4.15.0.0/>= 4.15.0.0/' liquid-base.cabal";
-            });
+            liquid-base = mkLiquidPkg "liquid-base";
             liquid-prelude = mkLiquidPkg "liquid-prelude";
             z3 = super.z3.overrideAttrs (old: {
               nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.z3 ];
@@ -62,6 +60,8 @@
         packages = p: [self.packages.${system}.haskell-code];
         buildInputs = with haskellPackages; [
           cabal-install
+          pkgs.z3
+          pkgs.cvc4
         ];
       };
     };

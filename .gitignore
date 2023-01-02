@@ -2,3 +2,4 @@
 .liquid/
 *.pdf
 .direnv/
+dist-newstyle/
