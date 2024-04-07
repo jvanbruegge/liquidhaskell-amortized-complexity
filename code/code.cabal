@@ -30,7 +30,7 @@ common common-options
                        -fplugin-opt=LiquidHaskell:--reflect
                        -fplugin-opt=LiquidHaskell:--no-adt
                        -fplugin-opt=LiquidHaskell:--max-case-expand=100000
-                       -fplugin-opt=LiquidHaskell:--diff
+                       -- -fplugin-opt=LiquidHaskell:--diff
   if impl(ghc >= 8.0)
     ghc-options:       -Wredundant-constraints
   if impl(ghc >= 8.2)
@@ -48,7 +48,7 @@ executable code
   main-is:             Main.hs
 
   other-modules:       Stack
-                     , Test
+                     , Seq2
 
   ghc-options:         -threaded
                        -rtsopts
