@@ -1,4 +1,6 @@
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+{-@ LIQUID "--no-adt" @-}
+{-@ LIQUID "--max-case-expand=100000" @-}
 {-@ LIQUID "--ple-local" @-}
 
 module Seq2 where
