@@ -4,7 +4,7 @@ module Heap2 where
 
 import Prelude hiding (replicate)
 import Data.List (uncons)
-import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (===), (?))
+import Language.Haskell.Liquid.ProofCombinators (Proof, (?), trivial)
 
 data Tree a = MkTree a [Tree a]
 
@@ -56,14 +56,8 @@ pot (F1 _ rest) = 1 + pot rest
 {-@ automatic-instances insertTreeAmortized @-}
 {-@ insertTreeAmortized :: t:_ -> f:_ -> { insertTreeT t f + pot (insertTree t f) - pot f <= 2 } @-}
 insertTreeAmortized :: Ord a => Tree a -> Heap a -> Proof
-insertTreeAmortized t f@FEnd = insertTreeT t f + pot (insertTree t f) - pot f *** QED
-insertTreeAmortized t f@(F0 _) = insertTreeT t f + pot (insertTree t f) - pot f *** QED
-insertTreeAmortized t f@(F1 t' f') =
-  insertTreeT t f + pot (insertTree t f) - pot f
-  === 1 + insertTreeT (mergeTree t t') f' + pot (F0 (insertTree (mergeTree t t') f')) - 1 - pot f'
-  === insertTreeT (mergeTree t t') f' + pot (insertTree (mergeTree t t') f') - pot f'
-  ? insertTreeAmortized (mergeTree t t') f'
-  *** QED
+insertTreeAmortized t (F1 t' f') = trivial ? insertTreeAmortized (mergeTree t t') f'
+insertTreeAmortized _ _ = trivial
 
 -- Appendix: Pretty print trees
 mapToList :: (Tree a -> b) -> [Tree a] -> [b]

@@ -1,6 +1,8 @@
+{-@ LIQUID "--ple-local" @-}
+
 module Stack (Stack, push, multipop) where
 
-import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (===), (?))
+import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (===), (?), trivial)
 import Prelude hiding (min)
 
 data Stack a = Nil | Cons a (Stack a)
@@ -73,20 +75,11 @@ multipop2 0 xs = ([], xs)
 multipop2 _ Nil = ([], Nil)
 multipop2 n (Cons x xs) = case multipop2 (n - 1) xs of (l, s) -> (x : l, s)
 
+{-@ automatic-instances ammortized_pop2 @-}
 {-@ ammortized_pop2 :: { n:Int | n >= 0 } -> st:Stack a -> { t_multipop n st + phi (snd (multipop2 n st)) - phi st == c2 } @-}
 ammortized_pop2 :: Int -> Stack a -> Proof
-ammortized_pop2 0 st =
-  t_multipop 0 st + phi (snd (multipop2 0 st)) - phi st
-    === 0 + phi (snd ([], st)) - phi st
-    === 0 + phi st - phi st
-    === c2
-    *** QED
-ammortized_pop2 n Nil =
-  t_multipop n Nil + phi (snd (multipop2 n Nil)) - phi Nil
-    === 0 + phi (snd ([], Nil)) - phi Nil
-    === 0 + 0 - 0
-    === c2
-    *** QED
+ammortized_pop2 0 _ = trivial
+ammortized_pop2 _ Nil = trivial
 ammortized_pop2 n (Cons x xs) =
   t_multipop n (Cons x xs) + phi (snd (multipop2 n (Cons x xs))) - phi (Cons x xs)
     === t_multipop n (Cons x xs) + phi (snd (case multipop2 (n - 1) xs of (l, st') -> (x : l, st'))) - phi (Cons x xs)

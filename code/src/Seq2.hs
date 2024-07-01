@@ -7,7 +7,7 @@ module Seq2 where
 
 import Prelude hiding (foldl, foldr, (++), max)
 
-import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (=<=), (===), (?))
+import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (=<=), (===), (?), trivial)
 
 data Seq a = Nil
   | Unit a
@@ -153,16 +153,8 @@ consAmortized x qq@(More (Three y z w) q u) =
 {-@ automatic-instances snocAmortized @-}
 {-@ snocAmortized :: q:Seq a -> x:a -> { snocT q x + pot (snoc q x) - pot q <= 3 } @-}
 snocAmortized :: Seq a -> a -> Proof
-snocAmortized qq@(More u q (Three x y z)) w =
-  snocT qq w + pot (snoc qq w) - pot qq
-  === 1 + snocT q (Pair x y) + pot (More u (snoc q (Pair x y)) (Two z w)) - dang u - pot q - 1
-  === snocT q (Pair x y) + pot (snoc q (Pair x y)) - pot q
-  ? snocAmortized q (Pair x y)
-  *** QED
-snocAmortized qq w =
-  snocT qq w + pot (snoc qq w) - pot qq
-  =<= 3
-  *** QED
+snocAmortized (More _ q (Three x y _)) _ = trivial ? snocAmortized q (Pair x y)
+snocAmortized _ _ = trivial
 
 {-@ reflect foldrT @-}
 {-@ foldrT :: (a -> b -> b) -> (a -> b -> { x:Int | x >= 1 }) -> b -> [a] -> { x:Int | x >= 1 } @-}
@@ -214,12 +206,10 @@ log2Mono n m =
   ? log2Mono (n `div` 2) (m `div` 2)
   *** QED
 
+{-@ automatic-instances foldrTCons @-}
 {-@ foldrTCons :: q:Seq a -> as:[a] -> { foldrT cons consT q as + pot (foldr cons q as) - pot q <= 3 * len as + 1 } @-}
 foldrTCons :: Seq a -> [a] -> Proof
-foldrTCons q as@[] =
-  foldrT cons consT q as + pot (foldr cons q as) - pot q
-  === 1 + pot q - pot q
-  *** QED
+foldrTCons _ [] = trivial
 foldrTCons q as@(x:xs) =
   foldrT cons consT q as + pot (foldr cons q as) - pot q
   === consT x (foldr cons q xs) + foldrT cons consT q xs + pot (cons x (foldr cons q xs)) - pot q
@@ -230,12 +220,10 @@ foldrTCons q as@(x:xs) =
   =<= 3 + 3 * length xs + 1
   *** QED
 
+{-@ automatic-instances foldlTSnoc @-}
 {-@ foldlTSnoc :: q:Seq a -> as:[a] -> { foldlT snoc snocT q as + pot (foldl snoc q as) - pot q <= 3 * len as + 1 } @-}
 foldlTSnoc :: Seq a -> [a] -> Proof
-foldlTSnoc q as@[] =
-  foldlT snoc snocT q as + pot (foldl snoc q as) - pot q
-  === 1 + pot q - pot q
-  *** QED
+foldlTSnoc _ [] = trivial
 foldlTSnoc q as@(x:xs) =
   foldlT snoc snocT q as + pot (foldl snoc q as) - pot q
   === snocT q x + foldlT snoc snocT (snoc q x) xs + pot (foldl snoc (snoc q x) xs) - pot q
@@ -253,6 +241,7 @@ max a b = if a >= b then a else b
 divCancel :: Int -> Proof
 divCancel _ = ()
 
+{-
 {-@ glueAmortized :: q1:Seq a -> { as:[a] | len as <= 3 } -> q2:Seq a -> { glueT q1 as q2 + pot (glue q1 as q2) - pot q1 - pot q2 <= log2 (max (len (seqToList q1) + len (seqToList q2)) 2) + 14 } @-}
 glueAmortized :: Seq a -> [a] -> Seq a -> Proof
 glueAmortized q1@Nil as q2 =
@@ -310,3 +299,4 @@ glueAmortized qq1@(More u1 q1 v1) as qq2@(More u2 q2 v2) =
       + length (toList u2 ++ tuplesToList (seqToList q2) ++ toList v2)) 2) + 14
   === log2 (max (length (seqToList qq1) + length (seqToList qq2)) 2) + 14
   *** QED
+-}

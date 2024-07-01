@@ -14,6 +14,23 @@ abstract="HipSpec is a system for automatically deriving and proving properties 
 isbn="978-3-642-38574-2"
 }
 
+@book{okasaki,
+author = {Okasaki, Chris},
+title = {Purely functional data structures},
+year = {1998},
+isbn = {0521631246},
+publisher = {Cambridge University Press},
+address = {USA}
+}
+
+@misc{heap_merge,
+  author = {{Lemontea}},
+  title = "Binomial heap merge",
+  year = "2006",
+  url = "https://commons.wikimedia.org/wiki/File:Binomial_heap_merge1.svg",
+  note = "[Online; accessed 2024-06-01]"
+}
+
 @book{isabelle,
 author="Nipkow, Tobias
 and Wenzel, Markus
@@ -61,7 +78,7 @@ url="https://doi.org/10.1007/978-3-662-07964-5"
   title = {The "containers" package},
   howpublished = "\url{http://hackage.haskell.org/package/containers}",
   year = {2020},
-  note = "[Online; accessed 2021-05-15]"
+  note = "[Online; accessed 2024-06-01]"
 }
 
 @misc{lh_plugin,
@@ -69,7 +86,7 @@ url="https://doi.org/10.1007/978-3-662-07964-5"
   title = {Implementing a GHC plugin for LiquidHaskell},
   howpublished = "\url{https://well-typed.com/blog/2020/08/implementing-a-ghc-plugin-for-liquid-haskell}",
   year = {2020},
-  note = "[Online; accessed 2021-05-15]"
+  note = "[Online; accessed 2024-06-01]"
 }
 
 @misc{hackage,
@@ -77,7 +94,7 @@ url="https://doi.org/10.1007/978-3-662-07964-5"
   title = {Hackage: The Haskell Package Repository},
   howpublished = "\url{https://hackage.haskell.org/}",
   year = {2007},
-  note = "[Online; accessed 2021-05-15]"
+  note = "[Online; accessed 2024-06-01]"
 }
 
 @InProceedings{isar,
@@ -253,6 +270,24 @@ pages = {268–277},
 numpages = {10}
 }
 
+@article{forking_paths,
+author = {Li, Yao and Xia, Li-yao and Weirich, Stephanie},
+title = {Reasoning about the garden of forking paths},
+year = {2021},
+issue_date = {August 2021},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {5},
+number = {ICFP},
+url = {https://doi.org/10.1145/3473585},
+doi = {10.1145/3473585},
+abstract = {Lazy evaluation is a powerful tool for functional programmers. It enables the concise expression of on-demand computation and a form of compositionality not available under other evaluation strategies. However, the stateful nature of lazy evaluation makes it hard to analyze a program's computational cost, either informally or formally. In this work, we present a novel and simple framework for formally reasoning about lazy computation costs based on a recent model of lazy evaluation: clairvoyant call-by-value. The key feature of our framework is its simplicity, as expressed by our definition of the clairvoyance monad. This monad is both simple to define (around 20 lines of Coq) and simple to reason about. We show that this monad can be effectively used to mechanically reason about the computational cost of lazy functional programs written in Coq.},
+journal = {Proc. ACM Program. Lang.},
+month = {aug},
+articleno = {80},
+numpages = {28},
+keywords = {monad, lazy evaluation, formal verification, computation cost}
+}
 
 @inproceedings{fingertrees_new,
 author = {Claessen, Koen},

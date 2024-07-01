@@ -51,7 +51,7 @@ type family BAdd (x :: Binary) (y :: Binary) :: Binary where
   BAdd (B0 x) (B1 y) = B1 (BAdd x y)
   BAdd (B1 x) (B1 y) = B0 (BInc (BAdd x y))
 
-type Forest :: Nat -> Binary -> Type -> Type
+--type Forest :: Nat -> Binary -> Type -> Type
 {-data Forest k b a where
   FEnd :: Forest k BEnd a
   F0 :: Forest (Succ k) b a -> Forest k (B0 b) a
@@ -106,7 +106,8 @@ pot (F1 _ rest) = 1 + pot rest
 insertTreeAmortized :: Ord a => Tree k a -> Forest k b a -> Proof
 insertTreeAmortized t f@FEnd =
   insertTreeT t f + pot (insertTree t f) - pot f
-    === 1 + pot (F1 t FEnd) - 0
+    === 1 + pot (insertTree t f) - 0
+    === 1 + pot (F1 t FEnd) -- fails
     === undefined
     *** QED
 {-    === 1 + pot (F1 t FEnd) - 0

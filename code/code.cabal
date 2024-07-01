@@ -42,7 +42,7 @@ executable code
   main-is:             Main.hs
 
   other-modules:       Stack
-                     , Seq2
+                     --, Seq2
                      --, Heap
                      , Counter
                      , Heap2

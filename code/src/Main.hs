@@ -1,13 +1,26 @@
+{-@ LIQUID "--ple-local" @-}
+
 module Main where
 
-import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (===), (?))
+import Language.Haskell.Liquid.ProofCombinators (Proof, QED (..), (***), (===), (?), trivial)
 import Stack ()
-import Prelude hiding (reverse)
+import Prelude hiding (reverse, length)
+
+{-@ measure length @-}
+length :: [a] -> Int
+length [] = 0
+length (_:xs) = 1 + length xs
 
 {-@ append :: xs:[a] -> ys:[a] -> { zs:[a] | len zs == len xs + len ys } @-}
 append :: [a] -> [a] -> [a]
 append [] ys = ys
 append (x : xs) ys = x : append xs ys
+
+{-@ automatic-instances appendLengthP @-}
+{-@ appendLengthP :: xs:[a] -> ys:[a] -> { length (append xs ys) == length xs + length ys } @-}
+appendLengthP :: [a] -> [a] -> Proof
+appendLengthP [] _ = trivial
+appendLengthP (_ : xs) ys = trivial ? appendLengthP xs ys
 
 {-@ appendAssocP :: xs:[a] -> ys:[a] -> zs:[a] ->
       { append (append xs ys) zs == append xs (append ys zs) } @-}
