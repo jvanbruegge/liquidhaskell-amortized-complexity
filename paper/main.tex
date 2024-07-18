@@ -765,19 +765,19 @@ glueAmortized qq1@(More u1 q1 v1) as
 -- simplify using monotonicity of log2
   ? log2Mono (2 * max n 2) (4 + 2 * n1 + 2 * n2)
   =<= log2 (4 + 2 * n1 + 2 * n2) + 14
-  ? log2Mono (4 + 2 * n1 + 2 * n2) (4 + n1' + n2')
-  =<= log2 (4 + n1' + n2') + 14
-  ? log2Mono (4 + n1' + n2')
+  ? log2Mono (4 + 2 * n1 + 2 * n2) (4 + m1 + m2)
+  =<= log2 (4 + m1 + m2) + 14
+  ? log2Mono (4 + m1 + m2)
     (max (length (toList u1
       ++ tuplesToList (seqToList q1) ++ toList v1
     ) + length (toList u2
       ++ tuplesToList (seqToList q2) ++ toList v2
     )) 2)
   =<= log2 (max (length (toList u1
-      ++ tuplesToList (seqToList q1) ++ toList v1)
-    + length (toList u2
-      ++ tuplesToList (seqToList q2) ++ toList v2)
-    ) 2) + 14
+      ++ tuplesToList (seqToList q1) ++ toList v1
+    ) + length (toList u2
+      ++ tuplesToList (seqToList q2) ++ toList v2
+    )) 2) + 14
   === log2 (max (length (seqToList qq1)
     + length (seqToList qq2)) 2) + 14
   *** QED
@@ -785,8 +785,8 @@ glueAmortized qq1@(More u1 q1 v1) as
     n1 = length (seqToList q1)
     n2 = length (seqToList q2)
     n = n1 + n2
-    n1' = length (tuplesToList (seqToList q1))
-    n2' = length (tuplesToList (seqToList q2))
+    m1 = length (tuplesToList (seqToList q1))
+    m2 = length (tuplesToList (seqToList q2))
 \end{lstlisting}
 
 \subsection{Comparison with Claessen's formalization}
@@ -870,8 +870,11 @@ insert :: Ord a => Tree k a -> Forest k b a
   -> Forest k (BInc b) a
 insert t FEnd = F1 t FEnd
 insert t (F0 f) = F1 t f
-insert t (F1 t' f) = F0 (insert (mergeTree t t') f)
+insert t (F1 t' f) =
+  F0 (insert (mergeTree t t') f)
 \end{lstlisting}
+
+\balance
 
 \section{Definition and proof for the snoc operation on a finger tree}
 
