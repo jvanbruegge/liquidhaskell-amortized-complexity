@@ -241,7 +241,6 @@ max a b = if a >= b then a else b
 divCancel :: Int -> Proof
 divCancel _ = ()
 
-{-
 {-@ glueAmortized :: q1:Seq a -> { as:[a] | len as <= 3 } -> q2:Seq a -> { glueT q1 as q2 + pot (glue q1 as q2) - pot q1 - pot q2 <= log2 (max (len (seqToList q1) + len (seqToList q2)) 2) + 14 } @-}
 glueAmortized :: Seq a -> [a] -> Seq a -> Proof
 glueAmortized q1@Nil as q2 =
@@ -282,21 +281,24 @@ glueAmortized qq1@(More u1 q1 v1) as qq2@(More u2 q2 v2) =
   === 1 + glueT q1 (toTuples (toList v1 ++ as ++ toList u2)) q2
       + pot (glue q1 (toTuples (toList v1 ++ as ++ toList u2)) q2)
       - pot q1 - dang v1 - dang u2 - pot q2
-  ? glueAmortized q1 (toTuples (toList v1 ++ as ++ toList u2)) q2
-  =<= log2 (max (length (seqToList q1) + length (seqToList q2)) 2) + 15
-  ? divCancel (max (length (seqToList q1) + length (seqToList q2)) 2)
-  === 1 + log2 (2 * max (length (seqToList q1) + length (seqToList q2)) 2 `div` 2) + 14
-  === log2 (2 * max (length (seqToList q1) + length (seqToList q2)) 2) + 14
-  ? log2Mono (2 * max (length (seqToList q1) + length (seqToList q2)) 2) (4 + 2 * length (seqToList q1) + 2 * length (seqToList q2))
-  =<= log2 (4 + 2 * length (seqToList q1) + 2 * length (seqToList q2)) + 14
-  ? log2Mono (4 + 2 * length (seqToList q1) + 2 * length (seqToList q2))
-      (4 + length (tuplesToList (seqToList q1)) + length (tuplesToList (seqToList q2)))
-  =<= log2 (4 + length (tuplesToList (seqToList q1)) + length (tuplesToList (seqToList q2))) + 14
-  ? log2Mono (4 + length (tuplesToList (seqToList q1)) + length (tuplesToList (seqToList q2))) 
+    ? glueAmortized q1 (toTuples (toList v1 ++ as ++ toList u2)) q2
+  =<= log2 (max n 2) + 15 ? divCancel (max n 2)
+  === 1 + log2 (2 * max n 2 `div` 2) + 14
+  === log2 (2 * max n 2) + 14
+    ? log2Mono (2 * max n 2) (4 + 2 * n1 + 2 * n2)
+  =<= log2 (4 + 2 * n1 + 2 * n2) + 14
+    ? log2Mono (4 + 2 * n1 + 2 * n2) (4 + n1' + n2')
+  =<= log2 (4 + n1' + n2') + 14
+    ? log2Mono (4 + n1' + n2')
       (max (length (toList u1 ++ tuplesToList (seqToList q1) ++ toList v1)
         + length (toList u2 ++ tuplesToList (seqToList q2) ++ toList v2)) 2)
   =<= log2 (max (length (toList u1 ++ tuplesToList (seqToList q1) ++ toList v1)
       + length (toList u2 ++ tuplesToList (seqToList q2) ++ toList v2)) 2) + 14
   === log2 (max (length (seqToList qq1) + length (seqToList qq2)) 2) + 14
   *** QED
--}
+  where
+    n1 = length (seqToList q1)
+    n2 = length (seqToList q2)
+    n = n1 + n2
+    n1' = length (tuplesToList (seqToList q1))
+    n2' = length (tuplesToList (seqToList q2))

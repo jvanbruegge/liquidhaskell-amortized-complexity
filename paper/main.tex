@@ -109,9 +109,9 @@ We show how to prove amortized complexity of data structures directly in Haskell
 
 Formally proving properties of production code is becoming more and more common. For safety critical code that is not allowed to "go wrong" as well as code that is fundamental and reused very often, like core libraries, bugs can have a widespread impact. Proving that the code behaves according to the specification can provide an extra layer of confidence. Fundamental data structures are one of the most important parts of a programming language ecosystem and a lot of production code depends on them. In languages like Haskell this comes mostly in the form of functional, persistent data structures like the ones described in Okasaki's book on purely functional data structures~\cite{okasaki}.
 
-Usually formal proofs are done in an external theorem prover (compare e.g.~\cite{complexity_coq} or~\cite{complexity_isabelle}), requiring an explicit translation step from the production language to the language the theorem prover uses. This translation step has a few disadvantages. First, the semantics of the target language could differ from the semantics of the production language. This is especially true for Haskell which is lazy, while most theorem provers have a strict language semantics. Second, such a translation step could introduce subtle differences or bugs, either by accident when doing a manual translation or through a bug when an automated translation tool is used. Lastly, the target language may not support certain features present in the source language (e.g. polymorphic recursion in data types, see section~\ref{sec:fingertree}). In those cases, the missing features have to be emulated in the target language, again opening the door for small and subtle errors. Because the code that is actually used in the formal proofs differs from the source code that is running in production, it is often hard to reconnect the proofs back to the original production code.
+Usually formal proofs are done in an external theorem prover (compare e.g.~\cite{complexity_coq} or~\cite{complexity_isabelle}), requiring an explicit translation step from the production language to the language the theorem prover uses. Such a translation step could introduce subtle differences or bugs if this translation is done manually. Additionally, the target language may not support certain features present in the source language (e.g. polymorphic recursion in data types, see section~\ref{sec:fingertree}). In those cases, the missing features have to be emulated in the target language, again opening the door for small and subtle errors. Because the code that is actually used in the formal proofs differs from the source code that is running in production, it is often hard to reconnect the proofs back to the original production code.
 
-Another possibility is using LiquidHaskell~\cite{liquidhaskell}. It is a refinement type~\cite{refinement_types} checker plugin\footnote{Before 2020, LiquidHaskell was implemented as a standalone executable; it now being a GHC plugin~\cite{lh_plugin} drastically improves usability} for GHC, the main Haskell compiler used in industry. It allows specifying additional constraints on types, e.g. "integers greater than zero" instead of just "integers". These constraints are propagated through the code and checked by an external SMT solver. With a handful of proof combinators defined by LiquidHaskell, it is possible to use Haskell directly as a theorem prover, enabling intuitive equational reasoning within the language~\cite{tpfa}. This avoids any translation steps and makes it easy to keep implementation and its respective proof in sync, as any failure to do so will result in a compiler error. Another benefit is that the reader or author of a proof does not need to learn an additional language, the production language is the same as the proof language.
+Another possibility is using LiquidHaskell~\cite{liquidhaskell}. It is a refinement type~\cite{refinement_types} checker plugin\footnote{Before 2020, LiquidHaskell was implemented as a standalone executable; it now being a GHC plugin~\cite{lh_plugin} drastically improves usability} for GHC, the main Haskell compiler used in industry. It allows specifying additional constraints on types, e.g. "integers greater than zero" instead of just "integers". These constraints are propagated through the code and checked by an external SMT solver. With a handful of proof combinators defined by LiquidHaskell, it is possible to use Haskell directly as a theorem prover, enabling intuitive equational reasoning within the language~\cite{tpfa}. This makes it easy to keep the implementation and its respective proof in sync, as any failure to do so will result in a compiler error. LiquidHaskell errors are also integrated with the normal Haskell IDE tooling, so the user can see proof failures directly in their editing environment. Another benefit is that the reader or author of a proof does not need to learn an additional language, the production language is the same as the proof language.
 
 In this paper, we:
 \begin{itemize}
@@ -129,7 +129,7 @@ But often this worst case is too pessimistic. When an operation changes the data
 
 As a running example we will use a stack with \textit{push} and \textit{multipop} operations. The former allocates a new element and a reference to the rest of the stack and thus takes a constant amount of time. The latter removes the first $k$ elements from the stack. In the worst case, it removes all the elements, making \texttt{multipop} \O{n}. One can already see that this is too pessimistic, because after removing all elements from the stack, the next \texttt{multipop} will do nothing. In fact, to be able to remove an element, it has had to be pushed to the stack at some point, so we can spread out the cost of \texttt{multipop} over those pushes.
 
-There are multiple techniques to prove amortized complexity; we present the two most popular ones. Note that both of these techniques only apply in a non-shared setting where intermediate results are not reused. If we were allowed to keep a reference to the original data structure after an operation, we could do the same expensive operation several times without "paying" for it. Some data structures can exploit laziness to have the same (good) amortized complexity also in a shared setting, however formally verifying this would require explicit reasoning about the lazy semantics of the language and thus massively complicate the analysis.
+There are multiple techniques to prove amortized complexity; we present the two most popular ones. Note that both of these techniques only apply in a non-shared setting where intermediate results are not reused. If we were allowed to keep a reference to the original data structure after an operation, we could do the same expensive operation several times without "paying" for it. Some data structures can exploit laziness to have the same (good) amortized complexity also in a shared setting, however formally verifying this would require explicit reasoning about the lazy semantics of the language and thus massively complicate the analysis. Note that in a non-shared setting the amortized complexity bounds apply regardless of whether the language is lazy or strict. Laziness may cause the data structure to do less work -- and thus have a better complexity -- but as an upper bound the amortized complexity is still valid.
 
 \subsection{Banker's method}\label{sec:banker}
 
@@ -191,8 +191,8 @@ infixl 3 ?
 {-@ (?) :: forall a b
   <pa :: a -> Bool, pb :: b -> Bool>.
   a<pa> -> b<pb> -> a<pa> @-}
-(?) :: a -> b -> a 
-x ? _ = x 
+(?) :: a -> b -> a
+x ? _ = x
 
 data QED = QED
 infixl 3 ***
@@ -279,7 +279,7 @@ multipop n (Elem x s) =
   in (x:xs, s')
 \end{lstlisting}
 
-To formally prove the amortized complexity with the physicist's method, we first need to define a potential $\Phi$ and a timing function for each of our operations that gives us the actual time cost of that operation. As seen in section~\ref{sec:physicist}, we use the height of the stack as our potential. 
+To formally prove the amortized complexity with the physicist's method, we first need to define a potential $\Phi$ and a timing function for each of our operations that gives us the actual time cost of that operation. As seen in section~\ref{sec:physicist}, we use the height of the stack as our potential.
 
 The timing functions tell us the cost of every operation. Their definition follow the recursive structure of the operations. We could use TemplateHaskell to automatically derive these timing functions from the original operations but for clarity we will define them manually throughout this work.
 
@@ -342,15 +342,16 @@ To avoid cluttering the proof of the recursive case, we use an \textit{as patter
 \begin{lstlisting}
 multipopP k xs@(Elem x s) = multipopT k xs
     + phi (multipop k xs) - phi xs
--- Use definition of multipopT for recursive case
+-- Use definition of multipopT n (Elem _ s)
   === (1 + multipopT (k - 1) s)
     + phi (snd (multipop k xs)) - phi xs
--- Use definition of multipop for recursive case
+-- Use definition of multipop n (Elem _ s)
   === (1 + multipopT (k - 1) s)
     + phi (snd (multipop (k - 1) s)) - phi xs
--- Use definition of phi (Elem _ _)
+-- Use definition of phi (Elem _ s)
   === (1 + multipopT (k - 1) s)
-    + phi (snd (multipop (k - 1) s)) - (1 + phi s)
+    + phi (snd (multipop (k - 1) s))
+    - (1 + phi s)
 -- Remove parentheses
   === 1 + multipopT (k - 1) s
     + phi (snd (multipop (k - 1) s)) - 1 - phi s
@@ -431,8 +432,8 @@ insertT t (F1 t' f) = 1 +
 
 {-@ automatic-instances insertTreeP @-}
 {-@ insertTreeP :: t:Tree a -> f:Heap a ->
-  { insertT t f + pot (insertTree t f)
-    - pot f <= 2 }
+  { insertT t f + phi (insertTree t f)
+    - phi f <= 2 }
 @-}
 insertTreeP :: Ord a => Tree a -> Heap a -> Proof
 insertTreeP t (F1 t' f') = trivial
@@ -487,7 +488,8 @@ danger Three{} = 1
 phi :: Seq a -> Int
 phi Nil = 0
 phi Unit{} = 0
-phi (More pr m sf) = danger pr + phi m + danger sf
+phi (More pr m sf) =
+  danger pr + phi m + danger sf
 
 {-@ reflect consT @-}
 {-@ consT :: a -> Seq a -> { x:Int | x >= 1 } @-}
@@ -568,7 +570,7 @@ We also need to reimplement \texttt{foldl}, \texttt{foldr} and list concatenatio
 
 \begin{lstlisting}
 {-@ reflect foldl @-}
-foldl :: (b -> a -> b) -> b -> [a] -> b 
+foldl :: (b -> a -> b) -> b -> [a] -> b
 foldl _ x [] = x
 foldl f a (x:xs) = foldl f (f a x) xs
 
@@ -678,14 +680,16 @@ foldrTCons q as@(x:xs) =
 
 {-@ automatic-instances foldlTSnoc @-}
 {-@ foldlTSnoc :: q:Seq a -> as:[a] ->
-  { foldlT snoc snocT q as + pot (foldl snoc q as)
+  { foldlT snoc snocT q as
+    + pot (foldl snoc q as)
     - pot q <= 3 * len as + 1 } @-}
 foldlTSnoc :: Seq a -> [a] -> Proof
 foldlTSnoc _ [] = trivial
 foldlTSnoc q as@(x:xs) =
   foldlT snoc snocT q as + pot (foldl snoc q as)
     - pot q
-  === snocT q x + foldlT snoc snocT (snoc q x) xs
+  === snocT q x
+      + foldlT snoc snocT (snoc q x) xs
       + pot (foldl snoc (snoc q x) xs) - pot q
       + pot (snoc q x) - pot (snoc q x)
   ? snocAmortized q x
@@ -696,16 +700,16 @@ foldlTSnoc q as@(x:xs) =
   *** QED
 \end{lstlisting}
 
-Now for the actual proof we will only show one of the base cases as the others follow the same schema. All the base cases have a constant upper bound on their complexity. For the recursive case we also need some small helper facts about the logarithm such as monotonicity.
+Now for the actual proof we will only show one of the base cases as the others follow the same schema. All the base cases have a constant upper bound on their complexity. For the recursive case we also need some small helper facts about the logarithm such as monotonicity. We also use a \texttt{where} binding to factor out common code and make the proof more readable.
 
 \begin{lstlisting}
 {-@ log2Mono :: { x:Int | 1 <= x } ->
   { y:Int | x <= y } -> { log2 x <= log2 y } @-}
 log2Mono :: Int -> Int -> Proof
 log2Mono 1 m = log2 1 <= log2 m *** QED
-log2Mono n m =
-  log2 n <= log2 m
-  === 1 + log2 (n `div` 2) <= 1 + log2 (m `div` 2)
+log2Mono n m = log2 n <= log2 m
+  === 1 + log2 (n `div` 2)
+    <= 1 + log2 (m `div` 2)
   === log2 (n `div` 2) <= log2 (m `div` 2)
   ? log2Mono (n `div` 2) (m `div` 2)
   *** QED
@@ -751,42 +755,38 @@ glueAmortized qq1@(More u1 q1 v1) as
       - pot q1 - danger v1 - danger u2 - pot q2
 -- apply induction
   ? glueAmortized q1
-      (toTuples (toList v1 ++ as ++ toList u2)) q2
-  =<= log2 (max (length (seqToList q1)
-        + length (seqToList q2)) 2) + 15
+    (toTuples (toList v1 ++ as ++ toList u2)) q2
+  =<= log2 (max n 2) + 15
 -- move (+1) into the logarithm
-  ? divCancel (max (length (seqToList q1)
-      + length (seqToList q2)) 2)
-  === 1 + log2 (2 * max (length (seqToList q1)
-      + length (seqToList q2)) 2 `div` 2) + 14
-  === log2 (2 * max (length (seqToList q1)
-      + length (seqToList q2)) 2) + 14
--- simplify
-  ? log2Mono (2 * max (length (seqToList q1)
-      + length (seqToList q2)) 2)
-    (4 + 2 * length (seqToList q1)
-      + 2 * length (seqToList q2))
-  =<= log2 (4 + 2 * length (seqToList q1)
-      + 2 * length (seqToList q2)) + 14
-  ? log2Mono (4 + 2 * length (seqToList q1)
-    + 2 * length (seqToList q2))
-      (4 + length (tuplesToList (seqToList q1))
-        + length (tuplesToList (seqToList q2)))
-  =<= log2 (4 + length (tuplesToList (seqToList q1))
-      + length (tuplesToList (seqToList q2))) + 14
-  ? log2Mono (4 + length (tuplesToList (seqToList q1))
-    + length (tuplesToList (seqToList q2))) 
-      (max (length (toList u1 ++ tuplesToList
-          (seqToList q1) ++ toList v1)
-        + length (toList u2 ++ tuplesToList
-            (seqToList q2) ++ toList v2)) 2)
-  =<= log2 (max (length (toList u1 ++ tuplesToList
-        (seqToList q1) ++ toList v1)
-      + length (toList u2 ++ tuplesToList
-        (seqToList q2) ++ toList v2)) 2) + 14
+  ? divCancel (max n 2)
+  === 1 + log2 (2 * max n 2 `div` 2) + 14
+  === log2 (2 * max n 2) + 14
+
+-- simplify using monotonicity of log2
+  ? log2Mono (2 * max n 2) (4 + 2 * n1 + 2 * n2)
+  =<= log2 (4 + 2 * n1 + 2 * n2) + 14
+  ? log2Mono (4 + 2 * n1 + 2 * n2) (4 + n1' + n2')
+  =<= log2 (4 + n1' + n2') + 14
+  ? log2Mono (4 + n1' + n2')
+    (max (length (toList u1
+      ++ tuplesToList (seqToList q1) ++ toList v1
+    ) + length (toList u2
+      ++ tuplesToList (seqToList q2) ++ toList v2
+    )) 2)
+  =<= log2 (max (length (toList u1
+      ++ tuplesToList (seqToList q1) ++ toList v1)
+    + length (toList u2
+      ++ tuplesToList (seqToList q2) ++ toList v2)
+    ) 2) + 14
   === log2 (max (length (seqToList qq1)
-      + length (seqToList qq2)) 2) + 14
+    + length (seqToList qq2)) 2) + 14
   *** QED
+  where
+    n1 = length (seqToList q1)
+    n2 = length (seqToList q2)
+    n = n1 + n2
+    n1' = length (tuplesToList (seqToList q1))
+    n2' = length (tuplesToList (seqToList q2))
 \end{lstlisting}
 
 \subsection{Comparison with Claessen's formalization}
@@ -881,7 +881,8 @@ snoc :: Seq a -> a -> Seq a
 snoc Nil x = Unit x
 snoc (Unit x) y = More (One x) Nil (One y)
 snoc (More u q (One x)) y = More u q (Two x y)
-snoc (More u q (Two x y)) z = More u q (Three x y z)
+snoc (More u q (Two x y)) z =
+  More u q (Three x y z)
 snoc (More u q (Three x y z)) w =
   More u (snoc q (Pair x y)) (Two z w)
 
