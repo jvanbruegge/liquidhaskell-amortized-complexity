@@ -1,4 +1,4 @@
-\documentclass[sigplan,screen,review,anonymous]{acmart}
+\documentclass[sigplan,screen]{acmart}
 
 \usepackage{xcolor}
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -10,29 +10,23 @@
     language=Haskell,
     columns=fullflexible,
     basicstyle=\ttfamily,
-    commentstyle=\color{codegreen}
+    commentstyle=\color{codegreen},
+    deletekeywords={Int, otherwise, div, length, snd, foldl, foldr, max, insert}
 }
 
 % shorthand for big O
 \renewcommand\O[1]{$\mathcal{O}(#1)$}
 
-%% Rights management information.  This information is sent to you
-%% when you complete the rights form.  These commands have SAMPLE
-%% values in them; it is your responsibility as an author to replace
-%% the commands and values with those provided to you when you
-%% complete the rights form.
-\setcopyright{none}
-%\copyrightyear{2024}
+\setcopyright{rightsretained}
+\acmDOI{10.1145/3677999.3678282}
 \acmYear{2024}
-\acmDOI{tbd}
-
-%% These commands are for a PROCEEDINGS abstract or paper.
-\acmConference[Haskell '24]{the 17th ACM SIGPLAN International Haskell Symposium}{September 02--05, 2024}{Milan, Italy}
-%\acmBooktitle{Woodstock '18: ACM Symposium on Neural Gaze Detection,
-%  June 03--05, 2018, Woodstock, NY}
-%\acmPrice{15.00}
-%\acmISBN{978-1-4503-XXXX-X/18/06}
-
+\copyrightyear{2024}
+\acmISBN{979-8-4007-1102-2/24/09}
+\acmConference[Haskell '24]{Proceedings of the 17th ACM SIGPLAN International Haskell Symposium}{September 6--7, 2024}{Milan, Italy}
+\acmBooktitle{Proceedings of the 17th ACM SIGPLAN International Haskell Symposium (Haskell '24), September 6--7, 2024, Milan, Italy}
+\acmSubmissionID{icfpws24haskellmain-p94-p}
+\received{2024-06-03}
+\received[accepted]{2024-07-05}
 
 %%
 %% Submission ID.
@@ -45,26 +39,14 @@
 %% end of the preamble, start of the body of the document source.
 \begin{document}
 
-%%
-%% The "title" command has an optional parameter,
-%% allowing the author to define a "short title" to be used in page headers.
-\title{Liquid Amortization - Proving amortized complexity with LiquidHaskell (Functional Pearl)}
+\title{Liquid Amortization: Proving Amortized Complexity with LiquidHaskell (Functional Pearl)}
 
-%%
-%% The "author" command and its associated commands are used to define
-%% the authors and their affiliations.
-%% Of note is the shared affiliation of the first two authors, and the
-%% "authornote" and "authornotemark" commands
-%% used to denote shared contribution to the research.
 \author{Jan van Brügge}
 \orcid{0000-0003-1560-7326}
 \affiliation{%
   \institution{Heriot-Watt University}
-  %\streetaddress{Arcisstraße 21}
   \city{Edinburgh}
-  %\state{Bavaria}
   \country{United Kingdom}
-  %\postcode{80333}
 }
 \email{jsv2000@hw.ac.uk}
 
@@ -141,7 +123,7 @@ In this paper, we:
 
 \section{Amortized complexity}\label{sec:complexity}
 
-It is common practise to investigate how many units of time an operation on a data structure takes in relation to the number of elements in the data structure. As the performance can vary wildly for the same operation depending on the state of the data structure, usually the worst case for each operation is used as a metric and specified using \textit{Landau notation} ("big O"). For example, a linear search\footnote{walking through a list element by element, checking if the current element is the one that is searched for} takes $1$ unit of time if the searched element is at the front, while it takes $n$ units of time if it is the last element. Thus we would say that linear search is in the complexity class of \O{n} because it will not take longer than $c \cdot n$ units of time for some fixed constant $c$.
+It is common practise to investigate how many units of time an operation on a data structure takes in relation to the number of elements in the data structure. As the performance can vary wildly for the same operation depending on the state of the data structure, usually the worst case for each operation is used as a metric and specified using \textit{Landau notation} ("big O"). For example, a linear search\footnote{walking through a list element by element, checking if the current element is the one that is searched for} takes $1$ unit of time if the searched element is at the front, while it takes $n$ units of time if it is the last element (where $n$ is the number of elements in the list). Thus we would say that linear search is in the complexity class of \O{n} because it will not take longer than $c \cdot n$ units of time for some fixed constant $c$.
 
 But often this worst case is too pessimistic. When an operation changes the data structure, for example by removing elements, consecutive operations might be cheaper. Or to use an expensive operation it might be necessary to have a certain amount of cheap operations. In such cases one uses \textit{amortized complexity}, which does not only look at a single operation in isolation, but at chains of operations.
 
@@ -151,7 +133,7 @@ There are multiple techniques to prove amortized complexity; we present the two 
 
 \subsection{Banker's method}\label{sec:banker}
 
-The banker's method uses a "bank" account that can store time units. Operations have to pay their actual runtime cost and may additionally deposit into or withdraw from the account. The sum of the actual cost and the deposit/withdrawal is the \textit{amortized cost} of the operation. The idea is that cheap operations pay extra time units, making their amortized cost higher than their actual cost. The goal is to keep the sum of the actual cost and the extra deposit in the same (good) complexity class as just the actual cost. Expensive operations on the other hand can use the stored time to pay for their actual cost, hopefully putting them in a better complexity class. In our example a \texttt{push} has to pay one time unit as actual cost and it will also pay one extra time unit into the bank account. The sum of the amortized cost and actual cost still constant, so \texttt{push} stays in \O{1}. Because for every element pushed we deposit one extra time unit into the bank, the account always contains as many time units as there are elements on the stack. As \texttt{multipop} can not remove more elements than there are on the stack, withdrawing $k$ time units to pay for the actual cost will never make the account become negative. Because withdrawing from the bank account is enough to pay for the complete actual cost of \texttt{multipop} regardless of the choice of $k$, its \textit{amortized complexity} is in \O{1}.
+The banker's method uses a "bank" account that can store time units. Operations have to pay their actual runtime cost and may additionally deposit into or withdraw from the account. The sum of the actual cost and the deposit/withdrawal is the \textit{amortized cost} of the operation. The idea is that cheap operations pay extra time units, making their amortized cost higher than their actual cost. The goal is to keep the sum of the actual cost and the extra deposit in the same (good) complexity class as just the actual cost. Expensive operations on the other hand can use the stored time to pay for their actual cost, hopefully putting them in a better complexity class. In our example a \texttt{push} has to pay one time unit as actual cost and it will also pay one extra time unit into the bank account. The sum of the amortized cost and actual cost still constant, so \texttt{push} stays in \O{1}. Because for every element pushed we deposit one extra time unit into the bank, the account always contains as many time units as there are elements on the stack. As \texttt{multipop} cannot remove more elements than there are on the stack, withdrawing $k$ time units to pay for the actual cost will never make the account become negative. Because withdrawing from the bank account is enough to pay for the complete actual cost of \texttt{multipop} regardless of the choice of $k$, its \textit{amortized complexity} is in \O{1}.
 
 \subsection{Physicist's method}\label{sec:physicist}
 
@@ -167,7 +149,7 @@ For our stack we can define the potential to be the height of the stack. This fu
 
 \section{LiquidHaskell for theorem proving}\label{sec:liquidhaskell}
 
-Usually LiquidHaskell is used to add more precise pre- and postconditions to functions with the help of refinement types~\cite{refinement_types}. The refinements are additional constraints on top of normal Haskell data types. These constraints are then checked by an external SMT solver. By default LiquidHaskell uses the z3~\cite{z3} solver, but it also supports cvc4~\cite{cvc4}. For example, it allows us to specify that the caller of a division function has to ensure that the denominator is not zero.
+Usually LiquidHaskell is used to add pre- and postconditions to functions with the help of refinement types~\cite{refinement_types}. The refinements are additional constraints on top of normal Haskell data types. These constraints are then checked by an external SMT solver. By default LiquidHaskell uses the z3~\cite{z3} solver, but it also supports cvc4~\cite{cvc4}. For example, it allows us to specify that the caller of a division function has to ensure that the denominator is not zero.
 
 \begin{lstlisting}
 {-@ div' :: Int -> { x:Int | x /= 0 } -> Int @-}
@@ -189,9 +171,9 @@ length (x:xs) = 1 + length xs
     -- thus 1 + length xs >= 0
 \end{lstlisting}
 
-To use functions in the refinements, one has to \textit{reflect}~\cite{reflection} them to the logic level. For a limited class of functions called \textit{measures}, this can be done while retaining full automatic reasoning. A measure is a function that takes only one argument which is an algebraic data type, has one equation per constructor of this data type and which only uses arithmetic functions and other measures in its right hand sides. Other functions still can be used in refinements when annotated with \texttt{reflect}, but the SMT solver is not able to check those refinements automatically. The user always has to provide the proofs themselves using LiquidHaskell's ability to do complex equational reasoning~\cite{tpfa} that is checked by a machine.
+Refinements can use equality (written as \texttt{==}) and comparison without the need for the \texttt{Eq} or \texttt{Ord} typeclasses. The reason is that in refinments these operators are translated to the builtin operators of the SMT theory and thus cannot be customized. To use functions in the refinements, one has to \textit{reflect}~\cite{reflection} them to the logic level. For a limited class of functions called \textit{measures}, this can be done while retaining full automatic reasoning. A measure is a function that takes only one argument which is an algebraic data type, has one equation per constructor of this data type and which only uses arithmetic functions and other measures in its right hand sides. Other functions still can be used in refinements when annotated with \texttt{reflect}, but the SMT solver is not able to check those refinements automatically. The user always has to provide the proofs themselves using LiquidHaskell's ability to do complex equational machine-checked reasoning~\cite{tpfa}.
 
-To facilitate these proofs, LiquidHaskell provides a set of proof combinators and a \texttt{Proof} type. This type is just a type alias for the normal Haskell unit type that is refined by the property that needs to be proved. The reasoning comes from the \texttt{===} operator that asserts that both sides of the equality have the same refinement. We can bring other facts in scope using the \texttt{?} operator. A proof can be finished by the \texttt{***} operator that casts a chain of equalities to the proof type (type slightly simplified here).
+To facilitate these proofs, LiquidHaskell provides a set of proof combinators and a \texttt{Proof} type. This type is just a type alias for the normal Haskell unit type that is refined by the property that needs to be proved. The reasoning comes from the \texttt{===} operator that asserts that both sides of the equality have the same refinement. We can bring other facts in scope using the \texttt{?} operator. The angle brackets used in its refinement type are used to explicity quantify over two refinements. This will make the facts "visible" in the type signature and thus make them available to the SMT solver. A proof can be finished by the \texttt{***} operator that casts a chain of equalities to the proof type (type slightly simplified here).
 
 \begin{lstlisting}
 type Proof = ()
@@ -336,7 +318,7 @@ pushP :: a -> Stack a -> Proof
 pushP x s = pushT x s + phi (push x s) - phi s
 -- Use definition of push and pushT
   === 1 + phi (Elem x s) - phi s
--- Use definition of phi (Elem _ _)
+-- Use definition of phi (Elem _ s)
   === 1 + (1 + phi s) - phi s
 -- phi s gets canceled, 1 + 1 <= 2
   *** QED
@@ -380,11 +362,11 @@ multipopP k xs@(Elem x s) = multipopT k xs
   *** QED
 \end{lstlisting}
 
-While this stack data structure might look contrived, it is basically the same as Okasaki's queues~\cite{okasaki}. A queue is one front and one back list which is in reverse order. This allows us to remove elements from the front list and add elements to the back list in \O{1}. When the front list is empty, the back list is rotated and used as the new front list, an operation which is basically the same as our \texttt{multipop} here.
+While this stack data structure might look contrived, it is basically half of Okasaki's queues~\cite{okasaki}. A queue is one front and one back list (or stack) where the back list is in reverse order. This allows us to remove elements from the front list and add elements to the back list in \O{1}. When the front list is empty, the back list is rotated and used as the new front list, an operation which is similar to \texttt{multipop} here.
 
 \section{Case study: Binomial Heaps}\label{sec:binomal_heap}
 
-We now move on from ordinary queues to priority queues. In functional languages the latter are usually implemented as some kind of (min) heap. A binomial heap is a forest of binomial trees where there exists at most one tree of every rank. A binomial tree of rank zero is just the root. A binomial tree of rank $k$ consists of its root and one binomial tree for every rank from $k - 1$ to zero as its children. Two binomial trees of rank $k$ can be merged by attaching the tree with the bigger root as first child of the other tree resulting in a binomial tree of rank $k + 1$ (see figure~\ref{fig:heap_merge}).
+In functional languages priority queues are usually implemented as some kind of (min) heap. A binomial heap is a forest of binomial trees where there exists at most one tree of every rank. A binomial tree of rank zero is just the root. A binomial tree of rank $k$ consists of its root and one binomial tree for every rank from $k - 1$ to zero as its children. Two binomial trees of rank $k$ can be merged by attaching the tree with the bigger root as first child of the other tree resulting in a binomial tree of rank $k + 1$ (see figure~\ref{fig:heap_merge}).
 
 \begin{figure}
 \includegraphics[width=\columnwidth]{./Binomial_heap_merge1.pdf}
@@ -407,9 +389,10 @@ mergeTree l@(MkTree lr lc) r@(MkTree rr rc)
   | lr <= rr = MkTree lr (r : lc)
   | otherwise = MkTree rr (l : rc)
 
-data Heap a = FEnd -- empty forest
-  | F0 (Heap a) -- no tree at this position
-  | F1 (Tree a) (Heap a)
+data Forest a = FEnd -- empty forest
+  | F0 (Forest a) -- no tree at this position
+  | F1 (Tree a) (Forest a)
+type Heap a = Forest a
 
 {-@ reflect insertTree @-}
 insertTree :: Ord a =>
@@ -428,7 +411,7 @@ For the amortized analysis of the binomial heap, \texttt{merge} only does one co
 
 As our potential $\Phi$ we will use the number of trees in the forest. The intuition here is that the worst case happens when there is a tree at every position and we need to walk through the whole forest to find a free spot. This also fulfils the requirement that the empty data structure has a potential of zero. Again for clarity we will define the timing functions manually to show how they are derived from the original operations. As the merge operation is constant we include its cost directly in the insert operation for brevity. The proof is very similar to the \texttt{multipop} example from section~\ref{sec:stack}, so we will use \textit{ple} to automate most of it.
 
-\begin{lstlisting}
+\begin{lstlisting}[escapechar=!]
 {-@ reflect phi @-}
 {-@ phi :: Heap a -> Nat @-}
 phi :: Heap a -> Int
@@ -437,7 +420,7 @@ phi (F0 rest) = phi rest
 phi (F1 rest) = 1 + phi rest
 
 {-@ reflect insertT @-}
-{-@ insertT :: Ord a =>
+{-@ insertT :: Ord a !\color{codegreen}{=>}!
   Tree a -> Heap a -> { x:Int | x >= 1 } @-}
 insertT :: Ord a =>
   Tree a -> Heap a -> Int
@@ -447,7 +430,7 @@ insertT t (F1 t' f) = 1 +
   insertT (mergeTree t t') f
 
 {-@ automatic-instances insertTreeP @-}
-{-@ insertTreeP :: t:_ -> f:_ ->
+{-@ insertTreeP :: t:Tree a -> f:Heap a ->
   { insertT t f + pot (insertTree t f)
     - pot f <= 2 }
 @-}
@@ -549,9 +532,9 @@ append :: Seq a -> Seq a -> Seq a
 append q1 q2 = glue q1 [] q2
 
 {-@ reflect toList @-}
-{-@ toList :: Some a ->
+{-@ toList :: Digit a ->
   { xs:[a] | len xs >= 1 && len xs <= 3 } @-}
-toList :: Some a -> [a]
+toList :: Digit a -> [a]
 toList (One x) = [x]
 toList (Two x y) = [x, y]
 toList (Three x y z) = [x, y, z]
@@ -806,13 +789,19 @@ glueAmortized qq1@(More u1 q1 v1) as
   *** QED
 \end{lstlisting}
 
+\subsection{Comparison with Claessen's formalization}
+
+For their formalization, Claessen used HipSpec~\cite{hipspec}, a tool to translate Haskell to first order logic. However we were not able to directly compare these proofs to ours as the tool has not seen any updates in the last 5 years and the last supported GHC version is 7.8. LiquidHaskell on the other hand has seen some industry adoption and has kept up to date with new GHC versions (version 9.8 at the time of writing).
+
+Aside from these technical limitations, they only formalized the comparatively easy \texttt{cons} and \texttt{snoc} complexities and leave out the much more interesting logarithmic complexity of append.
+
 \section{Conclusion}\label{sec:conclusion}
 
 In this paper we successfully applied LiquidHaskell to prove the amortized complexity of increasingly complex data structures. Despite some limitations of LiquidHaskell, like incomplete support for \texttt{DataKinds}, proving amortized complexity directly in Haskell is quite feasible. However some more complex proofs might require a lot of code for rather simple proof steps (compare the use of monotonicity in the previous section). In such cases, the extra automation built into modern theorem provers would certainly improve the user experience.
 
-On the other hand, LiquidHaskell's explicit equational reasoning is easier to follow for a new learner than opaque proof scripts written in a tactic-based theorem prover like Coq or Lean. While Isabelle/HOL also features equational reasoning with Isar~\cite{isar}, it does not support polymorphic recursion which makes the definition of our third case study a lot harder.
+On the other hand, LiquidHaskell's explicit equational reasoning is easier to follow for a new learner than opaque proof scripts written in a tactic-based theorem prover like Coq or Lean\footnote{Lean does support equational reasoning via the \texttt{calc} environment, however most proofs are done using tactic scripts}. While Isabelle/HOL also features equational reasoning with Isar~\cite{isar}, it does not support polymorphic recursion which makes the definition of our third case study a lot harder.
 
-For future work, it would be interesting to investigate how complex an adaptation of our technique for reasoning about lazy semantics would be. This would allow to expand the complexity results to a shared setting where reuse of intermediate results is allowed. It might be possible to adapt Yao et al.'s work on complexity for lazy programs~\cite{forking_paths}, but LiquidHaskell's lack of quantifiers will make this challenging.
+For future work, it would be interesting to investigate how complex an adaptation of our technique for reasoning about lazy semantics would be. This would allow to expand the complexity results to a shared setting where reuse of intermediate results is allowed. It might be possible to adapt \citet{forking_paths}'s or \citet{lazyfunction}'s works on complexity for lazy programs, but LiquidHaskell's lack of quantifiers will make this challenging.
 
 %%
 %% The acknowledgments section is defined using the "acks" environment
